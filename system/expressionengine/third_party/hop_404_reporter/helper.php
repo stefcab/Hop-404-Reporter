@@ -6,15 +6,6 @@ class Hop_404_reporter_helper
 {
 	private static $_settings;
 	
-	private static $_settings_default = array(
-		'enabled'					=> 'y',
-		'referrer_tracking'			=> 'y',
-		'send_email_notifications' 	=> 'y',
-		'email_address_sender'		=> '404_report@example.com',
-		'email_notification_subject'=> lang('email_notification_subject'),
-		'email_template'			=> lang('email_template')
-	);
-	
 	/**
 	 * Get the possible values of url referrer.
 	 * Used when no url referrer is saved into the DB
@@ -32,6 +23,18 @@ class Hop_404_reporter_helper
 		return array('once', 'always');
 	}
 	
+	private static function _get_default_settings()
+	{
+		return array(
+			'enabled'					=> 'y',
+			'referrer_tracking'			=> 'y',
+			'send_email_notifications' 	=> 'y',
+			'email_address_sender'		=> '404_report@example.com',
+			'email_notification_subject'=> lang('email_notification_subject'),
+			'email_template'			=> lang('email_template')
+		);
+	}
+	
 	public static function get_settings()
 	{
 		if (! isset(self::$_settings))
@@ -46,7 +49,7 @@ class Hop_404_reporter_helper
 				$settings[$row["setting_name"]] = $row["value"];
 			}
 
-			self::$_settings = array_merge(self::$_settings_default, $settings);
+			self::$_settings = array_merge(self::_get_default_settings(), $settings);
 		}
 
 		return self::$_settings;
@@ -55,7 +58,7 @@ class Hop_404_reporter_helper
 	public static function save_settings($settings = array())
 	{
 		//be sure to save all settings possible
-		$_tmp_settings = array_merge(self::$_settings_default, $settings);
+		$_tmp_settings = array_merge(self::_get_default_settings(), $settings);
 		
 		//TODO : improve the saving settings script
 		
@@ -85,8 +88,9 @@ class Hop_404_reporter_helper
 		}
 		else
 		{
-			$count = intval($query->result_array()[0]["count"]);
-			$query = ee()->db->update('hop_404_reporter_urls', array('count' => $count+1, 'last_occurred' => $date->format('Y-m-d H:i:s')), array('url_id' => $query->result_array()[0]["url_id"]));
+			$result_array = $query->result_array();
+			$count = intval($result_array[0]["count"]);
+			$query = ee()->db->update('hop_404_reporter_urls', array('count' => $count+1, 'last_occurred' => $date->format('Y-m-d H:i:s')), array('url_id' => $result_array[0]["url_id"]));
 		}
 	}
 	
@@ -98,14 +102,15 @@ class Hop_404_reporter_helper
 		}
 		$notif_query = ee()->db->query('SELECT * FROM `'.ee()->db->dbprefix.'hop_404_reporter_emails` WHERE ? REGEXP `url_to_match` OR `url_to_match` = "" ', array($url));
 		
-		$email_template = Hop_404_reporter_helper::get_settings()["email_template"];
+		$hop_settings = Hop_404_reporter_helper::get_settings();
+		$email_template = $hop_settings["email_template"];
 		
 		if ($email_template == "") return; // useless to send an empty email...
 		$email_txt = str_replace(array('{site_url}', '{404_url}', '{referrer_url}', '{404_date}', '{404_time}'), array(ee()->functions->create_url(''), $url, $referrer_url, $datetime->format('Y-m-d'), $datetime->format('H:i:s')), $email_template);
 		//echo $email_txt;
 		
-		$email_sender = Hop_404_reporter_helper::get_settings()["email_address_sender"];
-		$email_subject = Hop_404_reporter_helper::get_settings()["email_notification_subject"];
+		$email_sender = $hop_settings["email_address_sender"];
+		$email_subject = $hop_settings["email_notification_subject"];
 		ee()->load->library('email');
 		
 		

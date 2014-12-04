@@ -8,6 +8,8 @@ class hop_404_reporter_upd
 	
 	function install()
 	{
+		ee()->load->dbforge();
+		
 		//Add module to EE modules list
 		$data = array(
 		   'module_name' => 'Hop_404_reporter' ,
@@ -74,6 +76,7 @@ class hop_404_reporter_upd
 	
 	function update($current = '')
 	{
+		ee()->load->dbforge();
 		
 		if (version_compare($current, '0.1', '='))
 		{
@@ -113,7 +116,9 @@ class hop_404_reporter_upd
 	}
 	
 	
-	
+	/**
+	 * Generate fake data
+	 */
 	function generate_data()
 	{
 		

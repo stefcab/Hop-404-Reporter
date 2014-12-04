@@ -223,7 +223,8 @@ class hop_404_reporter_mcp
 			}
 		}
 		$query = ee()->db->get();
-		$count = intval($query->result_array()[0]['count']);
+		$query_result_array = $query->result_array();
+		$count = intval($query_result_array[0]['count']);
 		
 		//Additional stuff on the results
 		$rows = array();
@@ -413,7 +414,8 @@ class hop_404_reporter_mcp
 			}
 		}
 		$query = ee()->db->get();
-		$count = intval($query->result_array()[0]['count']);
+		$query_result_array = $query->result_array();
+		$count = intval($query_result_array[0]['count']);
 		
 		//Additional stuff on the results
 		$rows = array();
