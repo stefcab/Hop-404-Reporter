@@ -248,7 +248,7 @@ class hop_404_reporter_mcp
 			}
 			else
 			{
-				$c["referrer_url"] = '<a target="_blank" href="'.ee()->cp->masked_url(ee()->config->config['site_url'].substr($c["referrer_url"], 1)).'">'.$c["referrer_url"].'</a>';
+				$c["referrer_url"] = '<a target="_blank" href="'.ee()->cp->masked_url($c["referrer_url"]).'">'.$c["referrer_url"].'</a>';
 			}
 			$rows[] = (array) $c;
 		}
