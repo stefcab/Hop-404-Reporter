@@ -11,12 +11,13 @@ class Hop_404_reporter
 	 **/
 	function process_url()
 	{
-		if (Hop_404_reporter_helper::get_settings()["enabled"] == 'y')
+		$hop_settings = Hop_404_reporter_helper::get_settings();
+		if ($hop_settings["enabled"] == 'y')
 		{
 			$current_url = ee()->uri->uri_string();
 		
 			$referrer_url = "";
-			if (Hop_404_reporter_helper::get_settings()["referrer_tracking"] == 'y')
+			if ($hop_settings["referrer_tracking"] == 'y')
 			{
 				if (ee()->input->server('HTTP_REFERER') != "")
 				{
@@ -38,7 +39,7 @@ class Hop_404_reporter
 			
 			Hop_404_reporter_helper::save_404_url('/'.$current_url, $referrer_url, $datetime);
 			
-			if (Hop_404_reporter_helper::get_settings()["send_email_notifications"] == 'y')
+			if ($hop_settings["send_email_notifications"] == 'y')
 			{
 				Hop_404_reporter_helper::send_email_notifications('/'.$current_url, $referrer_url, $datetime);
 			}
