@@ -1,5 +1,7 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
+require_once PATH_THIRD.'hop_404_reporter/config.php';
+
 class Hop_404_reporter_helper
 {
 	private static $_settings;
@@ -8,15 +10,9 @@ class Hop_404_reporter_helper
 		'enabled'					=> 'y',
 		'referrer_tracking'			=> 'y',
 		'send_email_notifications' 	=> 'y',
-		'email_address_sender'		=> '404_report@mywebsite.com',
-		'email_notification_subject'=> 'Notification of a 404 not found URL',
-		'email_template'			=> 
-'
-Hi,
-You received this email from {site_url}.
-
-A 404 error occurred on {404_url} (from {referrer_url}), on {404_date} at {404_time}.
-'
+		'email_address_sender'		=> '404_report@example.com',
+		'email_notification_subject'=> lang('email_notification_subject'),
+		'email_template'			=> lang('email_template')
 	);
 	
 	/**

@@ -185,7 +185,7 @@ class hop_404_reporter_mcp
 			{
 				ee()->db->where('referrer_url', 'referrer_not_specified');
 			}
-			else if ($this->_referrer_url_filter == "referrer_nsaved")
+			else if ($this->_referrer_url_filter == "referrer_not_saved")
 			{
 				ee()->db->where('referrer_url', 'referrer_not_tracked');
 			}
@@ -217,7 +217,7 @@ class hop_404_reporter_mcp
 			{
 				ee()->db->where('referrer_url', 'referrer_not_specified');
 			}
-			else if ($this->_referrer_url_filter == "referrer_nsaved")
+			else if ($this->_referrer_url_filter == "referrer_not_saved")
 			{
 				ee()->db->where('referrer_url', 'referrer_not_tracked');
 			}
@@ -473,7 +473,7 @@ class hop_404_reporter_mcp
 		}
 		else if (ee()->input->post('action') == "reset")
 		{
-			ee()->session->set_flashdata('message_success', sprintf(lang('email_reseted_message'), $count));
+			ee()->session->set_flashdata('message_success', sprintf(lang('email_reset_message'), $count));
 		}
 		ee()->functions->redirect(BASE.AMP.'C=addons_modules'.AMP.'M=show_module_cp'.AMP.'module=hop_404_reporter'.AMP.'method=display_emails');
 	}
@@ -664,7 +664,7 @@ class hop_404_reporter_mcp
 			'*'					=> lang('filter_referrer_url'),
 			'referrer_saved'	=> lang('filter_referrer_saved'),
 			'no_referrer' 		=> lang('filter_no_referrer_url'),
-			'referrer_nsaved'	=> lang('filter_referrer_url_not_saved')
+			'referrer_not_saved'	=> lang('filter_referrer_url_not_saved')
 		);
 	}
 	

@@ -4,7 +4,7 @@ require_once PATH_THIRD.'hop_404_reporter/helper.php';
 
 class hop_404_reporter_upd
 {
-	var $version = '0.1';
+	var $version = HOP_404_REPORTER_VERSION;
 	
 	function install()
 	{
@@ -66,7 +66,7 @@ class hop_404_reporter_upd
 		Hop_404_reporter_helper::save_settings();
 		
 		///ATTENTION : TEST
-		$this->generate_data();
+		// $this->generate_data();
 		//// /TEST
 		
 		return TRUE;

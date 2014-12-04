@@ -13,7 +13,7 @@ $lang = array(
 	'referrer_not_specified'=> 'Referrer not specified',
 	'count'					=> 'Count',
 	'datetime_format'		=> 'Y-m-d h:i:sA',
-	'last_occurred_date' 	=> 'Date of the last occurrence',
+	'last_occurred_date' 	=> 'Date of last occurrence',
 	
 	
 	//Index view
@@ -46,7 +46,7 @@ $lang = array(
 	'filter_email_notifications'=> 'Filter Email Notifications',
 	'filter_interval'		=> 'Filter by interval',
 	'email_deleted_message'	=> '%d email notification(s) have been deleted',
-	'email_reseted_message' => '%d email notification(s) have been reseted',
+	'email_reset_message' => '%d email notification(s) have been reset',
 	'email_add_notification'=> 'Add new email notification',
 	'email_reset_selected'	=> 'Reset selected',
 	'no_emails_results'		=> 'No email notification found',
@@ -58,9 +58,9 @@ $lang = array(
 	'setting'				=> 'Setting',
 	'email_notif_page_title'	=> 'Add an email to send notifications to',
 	'email_notif_email_label' 	=> 'Email Address',
-	'email_notif_email_desc'	=> 'The email address to send the notification to.',
+	'email_notif_email_desc'	=> 'The email address to send the notification to',
 	'email_notif_url_label'		=> 'URL Filter',
-	'email_notif_url_desc'		=> 'The notification will be send to this email only if the 404 URL matches this filter. It is a regular expression. See the documentation for examples.',
+	'email_notif_url_desc'		=> 'The notification will be sent to this email only if the 404 URL matches this filter. It is a regular expression. See the documentation for examples.',
 	'email_notif_interval_label'=> 'Notification Interval',
 	'email_notif_interval_desc' => 'Select how often we should send email notifications.',
 	'email_notif_submit'		=> 'Save',
@@ -68,7 +68,7 @@ $lang = array(
 	'email_notif_interval_always' => 'Every Time',
 	'email_notif_interval_invalid' => 'Invalid interval parameter',
 	
-	//Setings view
+	//Settings view
 	'settings_pagetitle'	=> 'Hop 404 Reporter > Settings',
 	'settings_save'			=> 'Save',
 	'settings_form_error_email_address_sender'		=> 'It seems that this email address is not valid',
@@ -79,6 +79,16 @@ $lang = array(
 	//Support and Help View
 	'support_page_title'	=> 'Support and Help',
 	
+	//Email Defaults
+	'email_notification_subject'	=> 'Notification of a 404 not found URL',
+	'email_template'				=> 
+'
+Hi,
+You are receiving this email from {site_url}.
+
+A 404 error occurred on {404_url} (from {referrer_url}), on {404_date} at {404_time}.
+',
+
 	
 	//NAV Headers
 	'nav_index'				=> 'URL list',
