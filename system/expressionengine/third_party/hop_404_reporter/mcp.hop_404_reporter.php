@@ -64,6 +64,7 @@ class hop_404_reporter_mcp
 	{
 		$this->build_nav();
 		ee()->view->cp_page_title = lang('hop_404_reporter_module_name');
+		ee()->cp->load_package_css('hop_404');
 		
 		ee()->load->library('pagination');
 		ee()->load->library('javascript');
