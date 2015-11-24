@@ -1,9 +1,9 @@
 Hop 404 Reporter
 ================
 
-ExpressionEngine 404 error tracking module, created by Hop Studios
+Hop 404 Reporter will alert you to 404 errors happening on your website -- which will help your site look good in search engines and satisfy your site visitors.
 
-If you want to use it, [please buy it](https://devot-ee.com/add-ons/hop-404-reporter). :) 
+If you want to use it, [please buy it](https://devot-ee.com/add-ons/hop-404-reporter). :)
 
 Want more ?
 ===========
