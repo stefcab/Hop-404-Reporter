@@ -217,6 +217,7 @@ $fortunes_list->addItem(lang('archived_fortunes'), ee('CP/URL', 'addons/settings
 
 	/**
 	 * Get the data from database and expose it as JSON for CP table
+	 * (Not working for now)
 	 */
 	function _url_data($state, $params)
 	{
@@ -557,7 +558,7 @@ $fortunes_list->addItem(lang('archived_fortunes'), ee('CP/URL', 'addons/settings
 		{
 			ee()->session->set_flashdata('message_success', sprintf(lang('email_reset_message'), $count));
 		}
-		ee()->functions->redirect(BASE.AMP.'C=addons_modules'.AMP.'M=show_module_cp'.AMP.'module=hop_404_reporter'.AMP.'method=display_emails');
+		ee()->functions->redirect(ee('CP/URL')->make('addons/settings/hop_404_reporter/display_emails'));
 	}
 
 	function add_email()
@@ -687,7 +688,7 @@ $fortunes_list->addItem(lang('archived_fortunes'), ee('CP/URL', 'addons/settings
 			{
 				Hop_404_reporter_helper::save_settings($settings);
 				ee()->session->set_flashdata('message_success', lang('settings_saved_success'));
-				ee()->functions->redirect(BASE.AMP.'C=addons_modules'.AMP.'M=show_module_cp'.AMP.'module=hop_404_reporter'.AMP.'method=settings');
+				ee()->functions->redirect(ee('CP/URL')->make('addons/settings/hop_404_reporter/settings'));
 			}
 			else
 			{
@@ -702,7 +703,7 @@ $fortunes_list->addItem(lang('archived_fortunes'), ee('CP/URL', 'addons/settings
 			$vars["settings"] = Hop_404_reporter_helper::get_settings();
 		}
 
-		$vars['action_url'] = 'C=addons_modules'.AMP.'M=show_module_cp'.AMP.'module=hop_404_reporter'.AMP.'method=settings';
+		$vars['action_url'] = ee('CP/URL')->make('addons/settings/hop_404_reporter/settings');
     	$vars['form_hidden'] = array('action' => 'save_settings');
 
 		//TODO : generate table using ee()->load->library('table'); Useful ? or not ?

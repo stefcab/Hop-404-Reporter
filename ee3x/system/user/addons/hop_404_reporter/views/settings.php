@@ -80,5 +80,5 @@
 		</tr>
 	</tbody>
 </table>
-<?=form_submit(array('name' => 'submit', 'value' => lang('settings_save'), 'class' => 'submit'))?>
+<?=form_submit(array('name' => 'submit', 'value' => lang('settings_save'), 'class' => 'btn submit'))?>
 <?=form_close()?>
