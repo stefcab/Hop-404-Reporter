@@ -4,11 +4,14 @@
 <div class="box">
 	<div class="tbl-ctrls">
 		<fieldset class="tbl-search right">
-			<a class="btn tn action" href="<?=ee('CP/URL')->make('addons/settings/hop_404_reporter/settings')?>"><?=lang('settings')?></a>
+			<a class="btn tn action" href="<?=ee('CP/URL')->make('addons/settings/hop_404_reporter')?>"><?=lang('nav_index')?></a>
+			<a class="btn tn action" href="<?=ee('CP/URL')->make('addons/settings/hop_404_reporter/display_emails')?>"><?=lang('nav_emails')?></a>
+			<a class="btn tn action" href="<?=ee('CP/URL')->make('addons/settings/hop_404_reporter/settings')?>"><?=lang('nav_settings')?></a>
+			<a class="btn tn action" href="<?=ee('CP/URL')->make('addons/settings/hop_404_reporter/support')?>"><?=lang('nav_support')?></a>
 		</fieldset>
 		<h1><?=lang('404_url_title')?></h1>
 
-		<?=lang('404_url_lis_description')?>
+		<?=lang('404_url_list_description')?>
 
 		<?=form_open(ee('CP/URL')->make('addons/settings/hop_404_reporter'), 'id="url_filter"')?>
 			<fieldset class="shun">
@@ -29,8 +32,9 @@
 		// echo $table_html;
 		// echo $pagination_html;
 
-		$this->view('_shared/table', $table);
-		print_r( $pagination);
+		//$this->view('_shared/table', $table);
+		$this->embed('ee:_shared/table', $table);
+		print_r($pagination);
 		?>
 
 		<fieldset class="tbl-bulk-act hidden">

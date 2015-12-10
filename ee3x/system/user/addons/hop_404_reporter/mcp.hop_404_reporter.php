@@ -212,12 +212,19 @@ $fortunes_list->addItem(lang('archived_fortunes'), ee('CP/URL', 'addons/settings
 		ee()->cp->add_js_script('plugin', 'ee_table_reorder');
 		ee()->javascript->compile();
 
-		return ee()->load->view('index', $vars, TRUE);
+		// return ee()->load->view('index', $vars, TRUE);
+		return array(
+			'heading'			=> lang('404_url_title'),
+			'body'				=> ee('View')->make('hop_404_reporter:index')->render($vars),
+			'breadcrumb'	=> array(
+			  ee('CP/URL', 'addons/settings/hop_404_reporter')->compile() => lang('hop_404_reporter_module_name')
+			),
+		);
 	}
 
 	/**
 	 * Get the data from database and expose it as JSON for CP table
-	 * (Not working for now)
+	 * (Not used in ee3)
 	 */
 	function _url_data($state, $params)
 	{
@@ -445,6 +452,8 @@ $fortunes_list->addItem(lang('archived_fortunes'), ee('CP/URL', 'addons/settings
 
 	/**
 	 * Get the email notifications data
+	 * Used by email notifications table (gen. JSON)
+	 * Not used in ee3
 	 */
 	function _email_data($state, $params)
 	{
@@ -708,7 +717,14 @@ $fortunes_list->addItem(lang('archived_fortunes'), ee('CP/URL', 'addons/settings
 
 		//TODO : generate table using ee()->load->library('table'); Useful ? or not ?
 
-		return ee()->load->view('settings', $vars, TRUE);
+		// return ee()->load->view('settings', $vars, TRUE);
+		return array(
+			'heading'			=> lang('settings'),
+			'body'				=> ee('View')->make('hop_404_reporter:settings')->render($vars),
+			'breadcrumb'	=> array(
+			  ee('CP/URL', 'addons/settings/hop_404_reporter')->compile() => lang('hop_404_reporter_module_name')
+			),
+		);
 	}
 
 	/**
@@ -719,7 +735,14 @@ $fortunes_list->addItem(lang('archived_fortunes'), ee('CP/URL', 'addons/settings
 		$this->build_nav();
 		ee()->view->cp_page_title = lang('support_page_title');
 		$vars = array();
-		return ee()->load->view('support', $vars, TRUE);
+		// return ee()->load->view('support', $vars, TRUE);
+		return array(
+			'heading'			=> lang('support_page_title'),
+			'body'				=> ee('View')->make('hop_404_reporter:support')->render($vars),
+			'breadcrumb'	=> array(
+			  ee('CP/URL', 'addons/settings/hop_404_reporter')->compile() => lang('hop_404_reporter_module_name')
+			),
+		);
 	}
 
 	/**
