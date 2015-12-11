@@ -2,13 +2,6 @@
 
 <div class="box">
 	<div class="tbl-ctrls">
-		
-		<fieldset class="tbl-search right">
-			<a class="btn tn action" href="<?=ee('CP/URL')->make('addons/settings/hop_404_reporter')?>"><?=lang('nav_index')?></a>
-			<a class="btn tn action" href="<?=ee('CP/URL')->make('addons/settings/hop_404_reporter/display_emails')?>"><?=lang('nav_emails')?></a>
-			<a class="btn tn action" href="<?=ee('CP/URL')->make('addons/settings/hop_404_reporter/settings')?>"><?=lang('nav_settings')?></a>
-			<a class="btn tn action" href="<?=ee('CP/URL')->make('addons/settings/hop_404_reporter/support')?>"><?=lang('nav_support')?></a>
-		</fieldset>
 		<h1><?=lang('support_page_title')?></h1>
 		
 		<div class="tbl-wrap">
