@@ -30,12 +30,21 @@ class hop_404_reporter_mcp
 	 */
 	function build_nav()
 	{
-		ee()->cp->set_right_nav(array(
-			lang('nav_index')		=> BASE.AMP.'C=addons_modules'.AMP.'M=show_module_cp'.AMP.'module=hop_404_reporter',
-			lang('nav_emails')		=> BASE.AMP.'C=addons_modules'.AMP.'M=show_module_cp'.AMP.'module=hop_404_reporter'.AMP.'method=display_emails',
-			lang('nav_settings')	=> BASE.AMP.'C=addons_modules'.AMP.'M=show_module_cp'.AMP.'module=hop_404_reporter'.AMP.'method=settings',
-			lang('nav_support')		=> BASE.AMP.'C=addons_modules'.AMP.'M=show_module_cp'.AMP.'module=hop_404_reporter'.AMP.'method=support'
-		));
+		$sidebar = ee('CP/Sidebar')->make();
+
+		$sd_div = $sidebar->addHeader(lang('nav_index'));
+		$sd_div_list = $sd_div->addBasicList();
+		$sd_div_list->addItem(lang('404_url_list_title'), ee('CP/URL', 'addons/settings/hop_404_reporter'));
+		
+		$sd_div = $sidebar->addHeader(lang('nav_emails'))
+			->withButton(lang('new'), ee('CP/URL', 'addons/settings/hop_404_reporter/add_email'));
+		$sd_div_list = $sd_div->addBasicList();
+		$sd_div_list->addItem(lang('email_notifications_list'), ee('CP/URL', 'addons/settings/hop_404_reporter/display_emails'));
+		
+		$sd_div = $sidebar->addHeader(lang('nav_settings'));
+		$sd_div_list = $sd_div->addBasicList();
+		$sd_div_list->addItem(lang('settings'), ee('CP/URL', 'addons/settings/hop_404_reporter/settings'));
+		$sd_div_list->addItem(lang('support_page_title'), ee('CP/URL', 'addons/settings/hop_404_reporter/support'));
 	}
 
 	/**
