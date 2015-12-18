@@ -7,19 +7,7 @@
 
 		<?=lang('404_url_list_description')?>
 
-		<?=form_open(ee('CP/URL')->make('addons/settings/hop_404_reporter'), 'id="url_filter"')?>
-			<fieldset class="shun">
-				<legend><?=lang('filter_urls')?></legend>
-				<div class="group">
-					<label for="keywords" class="js_hide"><?=lang('keywords')?> </label><?=form_input('search', $filter_keywords, 'class="field shun" placeholder="'.lang('keywords').'"')?><br />
-
-					<?=form_dropdown('referrer_url_f', $filter_referrer_url_options, $filter_referrer_url_selected, 'id="referrer_url_f"').NBS.NBS?>
-					<?=form_dropdown('date_range', $filter_date_range_options, $filter_date_range_selected, 'id="date_range"').NBS.NBS?>
-					<?=form_submit('submit', lang('search'), 'class="submit" id="search_button"').NBS.NBS?>
-
-				</div>
-			</fieldset>
-		<?=form_close()?>
+		<?= $filters ?>
 
 		<?=form_open($action_url, array('name' => 'target', 'id' => 'target'))?>
 		<?php
@@ -28,13 +16,17 @@
 
 		//$this->view('_shared/table', $table);
 		$this->embed('ee:_shared/table', $table);
-		print_r($pagination);
+		echo $pagination;
 		?>
 
 		<fieldset class="tbl-bulk-act hidden">
 			<select name="bulk_action">
-				<option><?=lang('--with_selected--')?></option>
-				<option value="delete" data-confirm-trigger="selected" rel="modal-confirm-remove"><?=lang('delete_selected')?></option>
+				<option>
+					<?=lang('--with_selected--')?>
+				</option>
+				<option value="delete" data-confirm-trigger="selected" rel="modal-confirm-delete">
+					<?=lang('delete_selected')?>
+				</option>
 			</select>
 			<input class="btn submit" data-conditional-modal="confirm-trigger" type="submit" value="<?=lang('submit')?>">
 		</fieldset>
@@ -42,3 +34,16 @@
 		<?=form_close()?>
 	</div>
 </div>
+
+<?php
+$modal_vars = array(
+	'name'      => 'modal-confirm-delete',
+	'form_url'	=> ee('CP/URL')->make('addons/settings/hop_404_reporter/modify_urls'),
+	'hidden'	=> array(
+		'bulk_action'	=> 'delete'
+	)
+);
+
+$modal = $this->make('ee:_shared/modal_confirm_remove')->render($modal_vars);
+ee('CP/Modal')->addModal('delete', $modal);
+?>

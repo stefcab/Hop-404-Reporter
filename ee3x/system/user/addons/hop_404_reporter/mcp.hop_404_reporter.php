@@ -6,6 +6,8 @@ require_once PATH_THIRD.'hop_404_reporter/helper.php';
 
 class hop_404_reporter_mcp
 {
+	private $_base_url;
+	private $_base_url_params;
 	private $_perpage = 5;
 	private $_page = 1;
 	private $_offset = 0;
@@ -15,20 +17,21 @@ class hop_404_reporter_mcp
 	private $_date_range_filter;
 	private $_referrer_url_filter;
 	private $_interval_notification_filter;
+	private $_filters;
+	private $_filters_base_url;
 
 	public function __construct()
 	{
-		if (REQ == 'CP')
-		{
-			//Add our specific JS
-			ee()->javascript->output(file_get_contents(PATH_THIRD.'hop_404_reporter/javascript/hop_404_reporter.js'));
-		}
+		$this->_base_url = ee('CP/URL')->make('addons/settings/hop_404_reporter');
+		
+		//Add our specific JS
+		ee()->javascript->output(file_get_contents(PATH_THIRD.'hop_404_reporter/javascript/hop_404_reporter.js'));
 	}
 
 	/**
 	 * Build the navigation menu for the module
 	 */
-	function build_nav()
+	private function build_nav()
 	{
 		$sidebar = ee('CP/Sidebar')->make();
 
@@ -45,6 +48,7 @@ class hop_404_reporter_mcp
 		$sd_div_list = $sd_div->addBasicList();
 		$sd_div_list->addItem(lang('settings'), ee('CP/URL', 'addons/settings/hop_404_reporter/settings'));
 		$sd_div_list->addItem(lang('support_page_title'), ee('CP/URL', 'addons/settings/hop_404_reporter/support'));
+		
 	}
 
 	/**
@@ -53,29 +57,26 @@ class hop_404_reporter_mcp
 	function pagination_config($method, $total_rows)
 	{
 		// Pass the relevant data to the paginate class
-		$config['base_url'] = BASE.AMP.'C=addons_modules'.AMP.'M=show_module_cp'.AMP.'module=hop_404_reporter'.AMP.'method='.$method;
-		$config['total_rows'] = $total_rows;
-		$config['per_page'] = $this->_perpage;
-		$config['page_query_string'] = TRUE;
-		$config['query_string_segment'] = 'rownum';
-		$config['full_tag_open'] = '<p id="paginationLinks">';
-		$config['full_tag_close'] = '</p>';
-		$config['prev_link'] = '<img src="'.ee()->cp->cp_theme_url.'images/pagination_prev_button.gif" width="13" height="13" alt="<" />';
-		$config['next_link'] = '<img src="'.ee()->cp->cp_theme_url.'images/pagination_next_button.gif" width="13" height="13" alt=">" />';
-		$config['first_link'] = '<img src="'.ee()->cp->cp_theme_url.'images/pagination_first_button.gif" width="13" height="13" alt="< <" />';
-		$config['last_link'] = '<img src="'.ee()->cp->cp_theme_url.'images/pagination_last_button.gif" width="13" height="13" alt="> >" />';
-
-		$sidebar = ee('CP/Sidebar')->make();
-
-$fortunes = $sidebar->addHeader(lang('forutnes'))
-  ->withButton(lang('new'), ee('CP/URL', 'addons/settings/fortune_cookie/create'));
-
-$fortunes_list = $fortunes->addBasicList();
-$fortunes_list->addItem(lang('recent_fortunes'), ee('CP/URL', 'addons/settings/fortune_cookie/recent'));
-$fortunes_list->addItem(lang('archived_fortunes'), ee('CP/URL', 'addons/settings/fortune_cookie/archived'));
-
-		return $config;
+		// $config['base_url'] = BASE.AMP.'C=addons_modules'.AMP.'M=show_module_cp'.AMP.'module=hop_404_reporter'.AMP.'method='.$method;
+		// $config['total_rows'] = $total_rows;
+		// $config['per_page'] = $this->_perpage;
+		// $config['page_query_string'] = TRUE;
+		// $config['query_string_segment'] = 'rownum';
+		// $config['full_tag_open'] = '<p id="paginationLinks">';
+		// $config['full_tag_close'] = '</p>';
+		// $config['prev_link'] = '<img src="'.ee()->cp->cp_theme_url.'images/pagination_prev_button.gif" width="13" height="13" alt="<" />';
+		// $config['next_link'] = '<img src="'.ee()->cp->cp_theme_url.'images/pagination_next_button.gif" width="13" height="13" alt=">" />';
+		// $config['first_link'] = '<img src="'.ee()->cp->cp_theme_url.'images/pagination_first_button.gif" width="13" height="13" alt="< <" />';
+		// $config['last_link'] = '<img src="'.ee()->cp->cp_theme_url.'images/pagination_last_button.gif" width="13" height="13" alt="> >" />';
+		// 
+		// $sidebar = ee('CP/Sidebar')->make();
+		// 
+		// return $config;
 	}
+
+	//--------------------------------------------------------------------------
+	//          INDEX PAGE (URLs LIST)
+	//--------------------------------------------------------------------------
 
 	/*
 	 * Because if no method found, this one will be returned
@@ -86,23 +87,22 @@ $fortunes_list->addItem(lang('archived_fortunes'), ee('CP/URL', 'addons/settings
 		$this->build_nav();
 		ee()->view->cp_page_title = lang('hop_404_reporter_module_name');
 		ee()->cp->load_package_css('hop_404');
+		$header = array(
+            'title' 	=> lang('hop_404_reporter_module_name'),
+            'form_url'	=> $this->_create_base_url_with_existing_parameters('sort_col', 'sort_dir', 'filter_by_ref_url', 'filter_by_date_range'),
+            // 'toolbar_items' => array(
+            //     'settings' => array(
+            //         'href' => ee('CP/URL')->make('settings/template'),
+            //         'title' => lang('settings')
+            //     ),
+            // ),
+            'search_button_value' => lang('search_urls')
+        );
+		ee()->view->header = $header;
 
 		ee()->load->library('pagination');
 		ee()->load->library('javascript');
 		ee()->load->helper('form');
-
-
-
-		$columns = array(
-			'url' 			=> array('header' => lang('url')),
-			'referrer_url'	=> array('header' => lang('referrer')),
-			'count'			=> array('header' => lang('count')),
-			'last_occurred'	=> array('header' => lang('last_occurred_date')),
-			'_check'		=> array(
-				'header' => form_checkbox('select_all', 'true', FALSE, 'class="toggle_all" id="select_all"'),
-				'sort' => FALSE
-			)
-		);
 
 		$table = ee('CP/Table', array('autosort' => FALSE, 'autosearch' => FALSE, 'limit' => $this->_perpage));
 		$table->setColumns(
@@ -118,25 +118,11 @@ $fortunes_list->addItem(lang('archived_fortunes'), ee('CP/URL', 'addons/settings
 		);
 
 		//--- Get Data ---
-
-		// Get parameters
-		if (ee()->input->get('sort_col') != NULL)
-		{
-			if (ee()->input->get('sort_dir') != NULL && ee()->input->get('sort_dir') == "desc")
-			{
-				ee()->db->order_by(ee()->input->get('sort_col'), 'DESC');
-			}
-			else
-			{
-				ee()->db->order_by(ee()->input->get('sort_col', 'ASC'));
-			}
-		}
-
-		if (ee()->input->get('search') != NULL && ee()->input->get('search') != "")
-		{
-
-		}
-
+		
+		//Setup query parameters
+		$this->url_query_setup();
+		
+		//Setup pagination params
 		if (ee()->input->get('page') != NULL)
 		{
 			$this->_offset = $this->_perpage*(intval(ee()->input->get('page'))-1);
@@ -145,6 +131,8 @@ $fortunes_list->addItem(lang('archived_fortunes'), ee('CP/URL', 'addons/settings
 
 		$url_query = ee()->db->get('hop_404_reporter_urls', $this->_perpage, $this->_offset);
 		$urls = $url_query->result();
+		
+		// print_r( ee()->db->last_query());
 
 		// Process data and format it for Table
 		$data = array();
@@ -167,11 +155,15 @@ $fortunes_list->addItem(lang('archived_fortunes'), ee('CP/URL', 'addons/settings
 		// print_r($data);
 		$table->setData($data);
 
-		$vars['table'] = $table->viewData(ee('CP/URL', 'addons/settings/hop_404_reporter'));
+		$vars['table'] = $table->viewData($this->_create_base_url_with_existing_parameters(array('filter_by_date_range', 'filter_by_ref_url', 'search'), array('search')));
 
 		// Pagination
+		// Get count
 		ee()->db->select('count(*) AS count')
 			->from('hop_404_reporter_urls');
+		//Setup params
+		$this->url_query_setup();
+		//Get results
 		$query = ee()->db->get();
 		$query_result_array = $query->result_array();
 		$total_count = intval($query_result_array[0]['count']);
@@ -180,7 +172,7 @@ $fortunes_list->addItem(lang('archived_fortunes'), ee('CP/URL', 'addons/settings
 		$pagination->perPage($this->_perpage);
 		$pagination->currentPage($this->_page);
 
-		$vars['pagination'] = $pagination->render(ee('CP/URL', 'addons/settings/hop_404_reporter'));
+		$vars['pagination'] = $pagination->render($this->_create_base_url_with_existing_parameters(array('sort_col', 'sort_dir', 'filter_by_ref_url', 'filter_by_date_range', 'search'), array('search')));
 
 		// Default vars
 
@@ -188,10 +180,15 @@ $fortunes_list->addItem(lang('archived_fortunes'), ee('CP/URL', 'addons/settings
     	$vars['form_hidden'] = NULL;
 
 		$vars["filter_keywords"] = $this->_keywords;
-		$vars["filter_referrer_url_options"] = $this->_get_filter_referrer_url_options();
-		$vars["filter_referrer_url_selected"] = $this->_referrer_url_filter;
-		$vars["filter_date_range_options"] = $this->_get_filter_date_range_options();
-		$vars["filter_date_range_selected"] = $this->_date_range_filter;
+		// $vars["filter_referrer_url_options"] = $this->_get_filter_referrer_url_options();
+		// $vars["filter_referrer_url_selected"] = $this->_referrer_url_filter;
+		// $vars["filter_date_range_options"] = $this->_get_filter_date_range_options();
+		// $vars["filter_date_range_selected"] = $this->_date_range_filter;
+		
+		//Setup filters
+		$this->setup_url_list_filters();
+		$vars['filters'] = $this->_filters;
+		$vars['filters_base_url'] = $this->_filters_base_url;
 
 		// View related stuff
 		ee()->javascript->output(array(
@@ -217,141 +214,122 @@ $fortunes_list->addItem(lang('archived_fortunes'), ee('CP/URL', 'addons/settings
 			'
 		));
 
-		ee()->cp->add_js_script('file', 'cp/sort_helper');
-		ee()->cp->add_js_script('plugin', 'ee_table_reorder');
+		ee()->cp->add_js_script(array(
+			'file' 	=> 'cp/sort_helper',
+			'plugin'=> 'ee_table_reorder',
+			'file' 	=> array('cp/confirm_remove'),
+		));
 		ee()->javascript->compile();
+		
 
 		// return ee()->load->view('index', $vars, TRUE);
 		return array(
 			'heading'			=> lang('404_url_title'),
 			'body'				=> ee('View')->make('hop_404_reporter:index')->render($vars),
-			'breadcrumb'	=> array(
-			  ee('CP/URL', 'addons/settings/hop_404_reporter')->compile() => lang('hop_404_reporter_module_name')
+			'breadcrumb'		=> array(
+				ee('CP/URL', 'addons/settings/hop_404_reporter')->compile() => lang('hop_404_reporter_module_name')
 			),
 		);
 	}
-
+	
 	/**
-	 * Get the data from database and expose it as JSON for CP table
-	 * (Not used in ee3)
+	 * Setup filters for the index page (URLs list)
+	 * @return [type] [description]
 	 */
-	function _url_data($state, $params)
+	private function setup_url_list_filters()
+	{	
+		//Build filters base url (keep some parameters)
+		// In order to keep the search for later, we set it as a GET variable.
+		$this->_filters_base_url = $this->_create_base_url_with_existing_parameters(array('sort_col', 'sort_dir', 'search'), array('search'));
+		
+		$dates = ee('CP/Filter')->make('filter_by_date_range', 'filter_date_range', array(
+			'1' 	=> lang('filter_last_day'),
+			'7'		=> lang('filter_last_week'),
+			'31'	=> lang('filter_last_month'),
+			'92'	=> lang('filter_last_3months'),
+			'182'	=> lang('filter_last_6months'),
+			'365'	=> lang('filter_last_year')
+		));
+		$dates->disableCustomValue();
+		
+		$referers = ee('CP/Filter')->make('filter_by_ref_url', 'filter_referrer_url', array(
+			'referrer_saved'	=> lang('filter_referrer_saved'),
+			'no_referrer' 		=> lang('filter_no_referrer_url'),
+			'referrer_not_saved'=> lang('filter_referrer_url_not_saved')
+		));
+		$referers->disableCustomValue();
+		
+		$filters = ee('CP/Filter')
+			->add($referers)
+			->add($dates);
+		
+		// ee()->view->filters = $filters->render($this->_base_url);
+		// print_r(ee()->view);
+		$this->_filters = $filters->render($this->_filters_base_url);
+	}
+	
+	/**
+	 * Will get parameters and add proper query parameters
+	 * @return [type] [description]
+	 */
+	private function url_query_setup()
 	{
-		//print_r($params);
-		//$this->_setup_query_filters($state, $params);
-
-		//Do the sorting
-		$this->_sort = $state['sort'];
-		$this->_offset = $state['offset'];
-
-		foreach ($this->_sort as $col => $dir)
+		// Get parameters
+		if (ee()->input->get('sort_col') != NULL)
 		{
-			ee()->db->order_by($col, $dir);
+			if (ee()->input->get('sort_dir') != NULL && ee()->input->get('sort_dir') == "desc")
+			{
+				ee()->db->order_by(ee()->input->get('sort_col'), 'DESC');
+			}
+			else
+			{
+				ee()->db->order_by(ee()->input->get('sort_col', 'ASC'));
+			}
 		}
 
-		//Filtering
-		$this->_keywords = ee()->input->get_post('keywords');
-		$this->_date_range_filter = ee()->input->get_post('date_range');
-		$this->_referrer_url_filter = ee()->input->get_post('referrer_url_f');
-
-		$sql_filter_where = "(`url` LIKE '%".ee()->db->escape_like_str($this->_keywords)."%' OR `referrer_url` LIKE '%".ee()->db->escape_like_str($this->_keywords)."%' )";
-		ee()->db->where($sql_filter_where, NULL, TRUE);
-
-		if ($this->_date_range_filter)
+		$search_phrase = NULL;
+		// We verify POST first, because it's what is sent by the search form
+		if (ee()->input->post('search') != NULL && ee()->input->post('search') != "")
 		{
-			$datetime = new DateTime();
-			$datetime->setTimestamp(ee()->localize->now);
-			$datetime->sub(new DateInterval('P'.$this->_date_range_filter.'D'));
-			ee()->db->where('last_occurred >', $datetime->format('Y-m-d H:i:s'));
+			$search_phrase = ee()->input->post('search');
 		}
-
-		if ($this->_referrer_url_filter)
+		else if	(ee()->input->get('search') != NULL && ee()->input->get('search') != "")
 		{
-			if ($this->_referrer_url_filter == "referrer_saved")
+			$search_phrase = ee()->input->get('search');
+		}
+		
+		if ($search_phrase)
+		{
+			$sql_filter_where = "(`url` LIKE '%".ee()->db->escape_like_str($search_phrase)."%' OR `referrer_url` LIKE '%".ee()->db->escape_like_str($search_phrase)."%' )";
+			ee()->db->where($sql_filter_where, NULL, TRUE);
+		}
+		
+		if (ee()->input->get('filter_by_ref_url'))
+		{
+			$referrer_param = ee()->input->get('filter_by_ref_url');
+			if ($referrer_param == "referrer_saved")
 			{
 				ee()->db->where('referrer_url !=', 'referrer_not_specified');
 				ee()->db->where('referrer_url !=', 'referrer_not_tracked');
 			}
-			else if ($this->_referrer_url_filter == "no_referrer")
+			else if ($referrer_param == "no_referrer")
 			{
 				ee()->db->where('referrer_url', 'referrer_not_specified');
 			}
-			else if ($this->_referrer_url_filter == "referrer_not_saved")
+			else if ($referrer_param == "referrer_not_saved")
 			{
 				ee()->db->where('referrer_url', 'referrer_not_tracked');
 			}
 		}
-
-		$url_query = ee()->db->get('hop_404_reporter_urls', $this->_perpage, $this->_offset);
-
-		$url = $url_query->result_array();
-
-		//Count all possible results
-		ee()->db->select('count(*) AS count')
-			->from('hop_404_reporter_urls')
-			->where($sql_filter_where, NULL, TRUE);
-		if ($this->_date_range_filter)
+		
+		if (ee()->input->get('filter_by_date_range'))
 		{
+			$days = intval(ee()->input->get('filter_by_date_range'));
 			$datetime = new DateTime();
 			$datetime->setTimestamp(ee()->localize->now);
-			$datetime->sub(new DateInterval('P'.$this->_date_range_filter.'D'));
+			$datetime->sub(new DateInterval('P'.$days.'D'));
 			ee()->db->where('last_occurred >', $datetime->format('Y-m-d H:i:s'));
 		}
-		if ($this->_referrer_url_filter)
-		{
-			if ($this->_referrer_url_filter == "referrer_saved")
-			{
-				ee()->db->where('referrer_url !=', 'referrer_not_specified');
-				ee()->db->where('referrer_url !=', 'referrer_not_tracked');
-			}
-			else if ($this->_referrer_url_filter == "no_referrer")
-			{
-				ee()->db->where('referrer_url', 'referrer_not_specified');
-			}
-			else if ($this->_referrer_url_filter == "referrer_not_saved")
-			{
-				ee()->db->where('referrer_url', 'referrer_not_tracked');
-			}
-		}
-		$query = ee()->db->get();
-		$query_result_array = $query->result_array();
-		$count = intval($query_result_array[0]['count']);
-
-		//Additional stuff on the results
-		$rows = array();
-		while ($c = array_shift($url))
-		{
-			//print_r($c);
-			$c["_check"] = form_checkbox('toggle[]', $c["url_id"], FALSE, 'class="toggle"');
-			if ($c["last_occurred"])
-			{
-				$last_occurred = new DateTime($c["last_occurred"]);
-
-				$c["last_occurred"] = $last_occurred->format(lang('datetime_format'));
-			}
-			else
-			{
-				$c["last_occurred"] = lang('no_last_occur');
-			}
-			if (in_array($c["referrer_url"], Hop_404_reporter_helper::get_referrer_url_globals()) )
-			{
-				$c["referrer_url"] = lang($c["referrer_url"]);
-			}
-			else
-			{
-				$c["referrer_url"] = '<a target="_blank" href="'.ee()->cp->masked_url($c["referrer_url"]).'">'.$c["referrer_url"].'</a>';
-			}
-			$rows[] = (array) $c;
-		}
-
-		return array(
-			'rows' => (array) $rows,
-			'no_results' => lang('no_results'),
-			'pagination' => array(
-				'per_page' => $this->_perpage,
-				'total_rows' => $count
-			)
-		);
 	}
 
 	/**
@@ -385,6 +363,11 @@ $fortunes_list->addItem(lang('archived_fortunes'), ee('CP/URL', 'addons/settings
 		}
 		ee()->functions->redirect(ee('CP/URL')->make('addons/settings/hop_404_reporter'));
 	}
+	
+	
+	//--------------------------------------------------------------------------
+	//          DISPLAY EMAILS LIST (email notifications)
+	//--------------------------------------------------------------------------
 
 	/**
 	 * Displays list of email to be notified when 404 occurs
@@ -392,34 +375,91 @@ $fortunes_list->addItem(lang('archived_fortunes'), ee('CP/URL', 'addons/settings
 	function display_emails()
 	{
 		$this->build_nav();
-		ee()->view->cp_page_title = lang('email_list_pagetitle');
+		$this->_base_url = ee('CP/URL')->make('addons/settings/hop_404_reporter/display_emails');
+		$header = array(
+            'title' 	=> lang('hop_404_reporter_module_name'),
+            'form_url'	=> $this->_create_base_url_with_existing_parameters('sort_col', 'sort_dir', 'filter_by_ref_url', 'filter_by_date_range'),
+            // 'toolbar_items' => array(
+            //     'settings' => array(
+            //         'href' => ee('CP/URL')->make('settings/template'),
+            //         'title' => lang('settings')
+            //     ),
+            // ),
+            'search_button_value' => lang('search_emails_notif')
+        );
+		ee()->view->header = $header;
+
+		ee()->cp->load_package_css('hop_404');
 
 		ee()->load->library('pagination');
 		ee()->load->library('javascript');
-		ee()->load->library('table');
 		ee()->load->helper('form');
-
-		$columns = array(
-			'email_address' 	=> array('header' => lang('email_address')),
-			'url_to_match'		=> array('header' => lang('url_to_match')),
-			'interval'			=> array('header' => lang('interval')),
-			'_check'			=> array(
-				'header' => form_checkbox('select_all', 'true', FALSE, 'class="toggle_all" id="select_all"'),
-				'sort' => FALSE
+		
+		$table = ee('CP/Table', array('autosort' => FALSE, 'autosearch' => FALSE, 'limit' => $this->_perpage));
+		$table->setColumns(
+			array(
+				'email_address',
+				'url_to_match',
+				'interval',
+				array(
+					'type'  => Table::COL_CHECKBOX
+				)
 			)
 		);
+		$table->setNoResultsText(sprintf(lang('no_found'), lang('email_notifications')), 'create_new_one', ee('CP/URL')->make('addons/settings/hop_404_reporter/add_email'));
+		
+		//--- Get Data ---
 
-		$filter_base_url = 'C=addons_modules'.AMP.'M=show_module_cp'.AMP.'module=hop_404_reporter'.AMP.'method=display_emails';
+		// Get parameters
+		$this->email_notification_query_setup();
 
-		ee()->table->set_base_url($filter_base_url);
-		ee()->table->set_columns($columns);
+		if (ee()->input->get('page') != NULL)
+		{
+			$this->_offset = $this->_perpage*(intval(ee()->input->get('page'))-1);
+			$this->_page = intval(ee()->input->get('page'));
+		}
 
-		$params = array('perpage' => $this->_perpage);
-		$defaults = array('sort' => array('email_address' => 'desc'));
+		$emails_query = ee()->db->get('hop_404_reporter_emails', $this->_perpage, $this->_offset);
+		$emails = $emails_query->result();
+		
+		// Process data and format it for Table
+		$data = array();
+		foreach ($emails as $email)
+		{
+			$data[] = array(
+				$email->email_address,
+				$email->url_to_match,
+				$email->interval,
+				array(
+					'name' => 'emails[]',
+					'value' => $email->email_id,
+					'data'  => array(
+						'confirm' => lang('email') . ': <b>' . htmlentities($email->email_address, ENT_QUOTES) . '</b>'
+					)
+				)
+			);
+		}
+		// print_r($data);
+		$table->setData($data);
 
-		$vars = ee()->table->datasource('_email_data', $defaults, $params);
+		$vars['table'] = $table->viewData($this->_create_base_url_with_existing_parameters(array('filter_by_interval', 'search'), array('search')));
+		
+		//Setup pagination
+		ee()->db->select('count(*) AS count')
+			->from('hop_404_reporter_emails');
+		// Setup query params
+		$this->email_notification_query_setup();
+		$query = ee()->db->get();
+		$query_result_array = $query->result_array();
+		$total_count = intval($query_result_array[0]['count']);
 
-		$vars['action_url'] = 'C=addons_modules'.AMP.'M=show_module_cp'.AMP.'module=hop_404_reporter'.AMP.'method=modify_emails';
+		$pagination = ee('CP/Pagination', $total_count);
+		$pagination->perPage($this->_perpage);
+		$pagination->currentPage($this->_page);
+
+		$vars['pagination'] = $pagination->render($this->_create_base_url_with_existing_parameters(array('filter_by_interval', 'search'), array('search')));
+
+		$vars['action_url'] = ee('CP/URL', 'addons/settings/hop_404_reporter/modify_emails');
     	$vars['form_hidden'] = NULL;
 
 		$vars['options'] = array(
@@ -429,8 +469,12 @@ $fortunes_list->addItem(lang('archived_fortunes'), ee('CP/URL', 'addons/settings
 		$vars["add_email_notif_action"] = BASE.AMP.'C=addons_modules'.AMP.'M=show_module_cp'.AMP.'module=hop_404_reporter'.AMP.'method=add_email';
 
 		$vars["filter_keywords"] = $this->_keywords;
-		$vars["filter_interval_selected"] = $this->_interval_notification_filter;
-		$vars["filter_interval_options"] = $this->_get_filter_email_notification_interval_options();
+		//$vars["filter_interval_selected"] = $this->_interval_notification_filter;
+		//$vars["filter_interval_options"] = $this->_get_filter_email_notification_interval_options();
+		
+		//Setup filters
+		$this->setup_email_list_filters();
+		$vars['filters'] = $this->_filters;
 
 		// View related stuff
 		ee()->javascript->output(array(
@@ -456,7 +500,89 @@ $fortunes_list->addItem(lang('archived_fortunes'), ee('CP/URL', 'addons/settings
 		ee()->cp->add_js_script(array('plugin' => 'dataTables'));
 		ee()->javascript->compile();
 
-		return ee()->load->view('emails', $vars, TRUE);
+		// return ee()->load->view('emails', $vars, TRUE);
+		return array(
+			'heading'		=> lang('email_list_pagetitle'),
+			'body'			=> ee('View')->make('hop_404_reporter:emails')->render($vars),
+			'breadcrumb'	=> array(
+				ee('CP/URL', 'addons/settings/hop_404_reporter')->compile() => lang('hop_404_reporter_module_name')
+			),
+		);
+	}
+	
+	/**
+	 * Create filter options for the email notifications list
+	 * @return [type] [description]
+	 */
+	private function setup_email_list_filters()
+	{	
+		//Build filters base url (keep some parameters)
+		$this->_filters_base_url = $this->_create_base_url_with_existing_parameters(array('sort_col', 'sort_dir', 'search'), array('search'));
+		
+		$intervals = ee('CP/Filter')->make('filter_by_interval', 'filter_interval', array(
+			'interval_always'	=> lang('email_notif_interval_always'),
+			'interval_once'		=> lang('email_notif_interval_once')
+		));
+		$intervals->disableCustomValue();
+		
+		$filters = ee('CP/Filter')
+			->add($intervals);
+		
+		// ee()->view->filters = $filters->render($this->_base_url);
+		// print_r(ee()->view);
+		$this->_filters = $filters->render($this->_filters_base_url);
+	}
+	
+	/**
+	 * Setup query parameters for email notifications list
+	 * @return [type] [description]
+	 */
+	private function email_notification_query_setup()
+	{
+		// Get parameters
+		if (ee()->input->get('sort_col') != NULL)
+		{
+			if (ee()->input->get('sort_dir') != NULL && ee()->input->get('sort_dir') == "desc")
+			{
+				ee()->db->order_by(ee()->input->get('sort_col'), 'DESC');
+			}
+			else
+			{
+				ee()->db->order_by(ee()->input->get('sort_col', 'ASC'));
+			}
+		}
+
+		$search_phrase = NULL;
+		// We verify POST first, because it's what is sent by the search form
+		if (ee()->input->post('search') != NULL && ee()->input->post('search') != "")
+		{
+			$search_phrase = ee()->input->post('search');
+		}
+		else if	(ee()->input->get('search') != NULL && ee()->input->get('search') != "")
+		{
+			$search_phrase = ee()->input->get('search');
+		}
+		
+		if ($search_phrase)
+		{
+			$sql_filter_where = "(`email_address` LIKE '%".ee()->db->escape_like_str($search_phrase)."%' OR `url_to_match` LIKE '%".ee()->db->escape_like_str($search_phrase)."%' )";
+			ee()->db->where($sql_filter_where, NULL, TRUE);
+		}
+		
+		if (ee()->input->get('filter_by_interval'))
+		{
+			$interval = ee()->input->get('filter_by_interval');
+			if ($interval == "interval_always")
+			{
+				ee()->db->where('interval', 'always');
+			}
+			else if ($interval == "interval_once")
+			{
+				ee()->db->where('interval', 'once');
+			}
+		}
+		
+		
 	}
 
 	/**
@@ -549,30 +675,30 @@ $fortunes_list->addItem(lang('archived_fortunes'), ee('CP/URL', 'addons/settings
 	 **/
 	function modify_emails()
 	{
-		$emails_to_modify = ee()->input->post('toggle');
+		$emails_to_modify = ee()->input->post('emails');
 
-		//print_r($emails_to_modify);
+		// print_r($emails_to_modify);
 
 		$count = 0;
 		foreach($emails_to_modify as $email_id)
 		{
-			if (ee()->input->post('action') == "delete")
+			if (ee()->input->post('bulk_action') == "delete")
 			{
 				ee()->db->delete('hop_404_reporter_emails', array('email_id' => $email_id));
 				$count++;
 			}
-			else if (ee()->input->post('action') == "reset")
+			else if (ee()->input->post('bulk_action') == "reset")
 			{
 				ee()->db->update('hop_404_reporter_emails', array('parameter' => ''), array('email_id' => $email_id));
 				$count++;
 			}
 		}
 
-		if (ee()->input->post('action') == "delete")
+		if (ee()->input->post('bulk_action') == "delete")
 		{
 			ee()->session->set_flashdata('message_success', sprintf(lang('email_deleted_message'), $count));
 		}
-		else if (ee()->input->post('action') == "reset")
+		else if (ee()->input->post('bulk_action') == "reset")
 		{
 			ee()->session->set_flashdata('message_success', sprintf(lang('email_reset_message'), $count));
 		}
@@ -582,7 +708,6 @@ $fortunes_list->addItem(lang('archived_fortunes'), ee('CP/URL', 'addons/settings
 	function add_email()
 	{
 		$this->build_nav();
-		ee()->view->cp_page_title = lang('email_list_pagetitle');
 
 		$vars = array();
 
@@ -618,14 +743,21 @@ $fortunes_list->addItem(lang('archived_fortunes'), ee('CP/URL', 'addons/settings
 				);
 				ee()->db->insert('hop_404_reporter_emails', $data);
 
-				ee()->functions->redirect(BASE.AMP.'C=addons_modules'.AMP.'M=show_module_cp'.AMP.'module=hop_404_reporter'.AMP.'method=display_emails');
+				ee()->functions->redirect(ee('CP/URL')->make('addons/settings/hop_404_reporter/display_emails'));
 			}
 		}
 
-		$vars['action_url'] = 'C=addons_modules'.AMP.'M=show_module_cp'.AMP.'module=hop_404_reporter'.AMP.'method=add_email';
+		$vars['action_url'] = ee('CP/URL')->make('addons/settings/hop_404_reporter/add_email');
     	$vars['form_hidden'] = array('action' => 'add_email');
 
-		return ee()->load->view('add_email', $vars, TRUE);
+		// return ee()->load->view('add_email', $vars, TRUE);
+		return array(
+			'heading'		=> lang('email_create_notification'),
+			'body'			=> ee('View')->make('hop_404_reporter:add_email')->render($vars),
+			'breadcrumb'	=> array(
+				ee('CP/URL', 'addons/settings/hop_404_reporter')->compile() => lang('hop_404_reporter_module_name')
+			),
+		);
 	}
 
 	/**
@@ -742,7 +874,7 @@ $fortunes_list->addItem(lang('archived_fortunes'), ee('CP/URL', 'addons/settings
 	public function support()
 	{
 		$this->build_nav();
-		ee()->view->cp_page_title = lang('support_page_title');
+
 		$vars = array();
 		// return ee()->load->view('support', $vars, TRUE);
 		return array(
@@ -753,46 +885,40 @@ $fortunes_list->addItem(lang('archived_fortunes'), ee('CP/URL', 'addons/settings
 			),
 		);
 	}
-
+	
 	/**
-	 * Get the list of options to filter the URLs by date range
+	 * This is building a base url including already existing parameters.
+	 * @param  array	$parameters	Array of names of parameters to keep in the url
+	 * @return [type]             [description]
 	 */
-	protected function _get_filter_date_range_options()
+	protected function _create_base_url_with_existing_parameters($parameters, $post_parameters = array())
 	{
-		return array(
-			''	=> lang('filter_date_range'),
-			1 	=> lang('filter_last_day'),
-			7	=> lang('filter_last_week'),
-			31	=> lang('filter_last_month'),
-			92	=> lang('filter_last_3months'),
-			182	=> lang('filter_last_6months'),
-			365	=> lang('filter_last_year')
-		);
-	}
-
-	/**
-	 * Get the list of options to filter the URLs by Referrer
-	 */
-	protected function _get_filter_referrer_url_options()
-	{
-		return array(
-			'*'					=> lang('filter_referrer_url'),
-			'referrer_saved'	=> lang('filter_referrer_saved'),
-			'no_referrer' 		=> lang('filter_no_referrer_url'),
-			'referrer_not_saved'	=> lang('filter_referrer_url_not_saved')
-		);
-	}
-
-	/**
-	 * Get the list of options to filter the email notifications by Interval
-	 */
-	protected function _get_filter_email_notification_interval_options()
-	{
-		return array(
-			'*'					=> lang('filter_interval'),
-			'interval_always'	=> lang('email_notif_interval_always'),
-			'interval_once'		=> lang('email_notif_interval_once')
-		);
+		$base_url_with_parameters = clone $this->_base_url;
+		if (!is_array($parameters))
+		{
+			return $base_url_with_parameters;
+		}
+		
+		foreach ($parameters as $parameter)
+		{
+			if (ee()->input->get($parameter))
+			{
+				$base_url_with_parameters->setQueryStringVariable($parameter, ee()->input->get($parameter));
+			}
+		}
+		
+		if ($post_parameters != NULL && count($post_parameters) != 0)
+		{
+			foreach ($post_parameters as $parameter)
+			{
+				if (ee()->input->post($parameter))
+				{
+					$base_url_with_parameters->setQueryStringVariable($parameter, ee()->input->post($parameter));
+				}
+			}
+		}
+		
+		return $base_url_with_parameters;
 	}
 }
 // END CLASS
