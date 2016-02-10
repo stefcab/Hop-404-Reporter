@@ -75,7 +75,7 @@ class hop_404_reporter_mcp
 	}
 
 	//--------------------------------------------------------------------------
-	//          INDEX PAGE (URLs LIST)
+	//		  INDEX PAGE (URLs LIST)
 	//--------------------------------------------------------------------------
 
 	/*
@@ -85,19 +85,18 @@ class hop_404_reporter_mcp
 	function index()
 	{
 		$this->build_nav();
-		ee()->view->cp_page_title = lang('hop_404_reporter_module_name');
-		ee()->cp->load_package_css('hop_404');
 		$header = array(
-            'title' 	=> lang('hop_404_reporter_module_name'),
-            'form_url'	=> $this->_create_base_url_with_existing_parameters('sort_col', 'sort_dir', 'filter_by_ref_url', 'filter_by_date_range'),
-            // 'toolbar_items' => array(
-            //     'settings' => array(
-            //         'href' => ee('CP/URL')->make('settings/template'),
-            //         'title' => lang('settings')
-            //     ),
-            // ),
-            'search_button_value' => lang('search_urls')
-        );
+			'title' 	=> lang('hop_404_reporter_module_name'),
+			'form_url'	=> $this->_create_base_url_with_existing_parameters('sort_col', 'sort_dir', 'filter_by_ref_url', 'filter_by_date_range'),
+			// 'toolbar_items' => array(
+			// 	'settings' => array(
+			//		 'href' => ee('CP/URL')->make('settings/template'),
+			//		 'title' => lang('settings')
+			//	 ),
+			// ),
+			'search_button_value' => lang('search_urls')
+		);
+		ee()->cp->load_package_css('hop_404');
 		ee()->view->header = $header;
 
 		ee()->load->library('pagination');
@@ -177,7 +176,7 @@ class hop_404_reporter_mcp
 		// Default vars
 
 		$vars['action_url'] = ee('CP/URL')->make('addons/settings/hop_404_reporter/modify_urls');
-    	$vars['form_hidden'] = NULL;
+		$vars['form_hidden'] = NULL;
 
 		$vars["filter_keywords"] = $this->_keywords;
 		// $vars["filter_referrer_url_options"] = $this->_get_filter_referrer_url_options();
@@ -191,36 +190,12 @@ class hop_404_reporter_mcp
 		$vars['filters_base_url'] = $this->_filters_base_url;
 
 		// View related stuff
-		ee()->javascript->output(array(
-			'$(".toggle_all").toggle(
-				function(){
-					$("input.toggle").each(function() {
-						this.checked = true;
-					});
-				}, function (){
-					var checked_status = this.checked;
-					$("input.toggle").each(function() {
-						this.checked = false;
-					});
-				}
-			);
-			$(function() {
-				//Setting css stuff so the table is correctly displayed even with very long URLs
-				$(".pageContents").css("overflow", "auto");
-				$("#mainContent table.mainTable").css("width", $(".pageContents").width()+"px");
-				//Setup the dynamic filtering
-				Hop404Reporter_cp.setup_tables();
-			});
-			'
-		));
-
 		ee()->cp->add_js_script(array(
 			'file' 	=> 'cp/sort_helper',
 			'plugin'=> 'ee_table_reorder',
 			'file' 	=> array('cp/confirm_remove'),
 		));
 		ee()->javascript->compile();
-		
 
 		// return ee()->load->view('index', $vars, TRUE);
 		return array(
@@ -366,7 +341,8 @@ class hop_404_reporter_mcp
 	
 	
 	//--------------------------------------------------------------------------
-	//          DISPLAY EMAILS LIST (email notifications)
+	//		  DISPLAY EMAILS LIST (email notifications)
+	//		  DISPLAY ADD EMAIL PAGE
 	//--------------------------------------------------------------------------
 
 	/**
@@ -377,16 +353,16 @@ class hop_404_reporter_mcp
 		$this->build_nav();
 		$this->_base_url = ee('CP/URL')->make('addons/settings/hop_404_reporter/display_emails');
 		$header = array(
-            'title' 	=> lang('hop_404_reporter_module_name'),
-            'form_url'	=> $this->_create_base_url_with_existing_parameters('sort_col', 'sort_dir', 'filter_by_ref_url', 'filter_by_date_range'),
-            // 'toolbar_items' => array(
-            //     'settings' => array(
-            //         'href' => ee('CP/URL')->make('settings/template'),
-            //         'title' => lang('settings')
-            //     ),
-            // ),
-            'search_button_value' => lang('search_emails_notif')
-        );
+			'title' 	=> lang('hop_404_reporter_module_name'),
+			'form_url'	=> $this->_create_base_url_with_existing_parameters('sort_col', 'sort_dir', 'filter_by_ref_url', 'filter_by_date_range'),
+			// 'toolbar_items' => array(
+			//	 'settings' => array(
+			//		 'href' => ee('CP/URL')->make('settings/template'),
+			//		 'title' => lang('settings')
+			//	 ),
+			// ),
+			'search_button_value' => lang('search_emails_notif')
+		);
 		ee()->view->header = $header;
 
 		ee()->cp->load_package_css('hop_404');
@@ -460,11 +436,11 @@ class hop_404_reporter_mcp
 		$vars['pagination'] = $pagination->render($this->_create_base_url_with_existing_parameters(array('filter_by_interval', 'search'), array('search')));
 
 		$vars['action_url'] = ee('CP/URL', 'addons/settings/hop_404_reporter/modify_emails');
-    	$vars['form_hidden'] = NULL;
+		$vars['form_hidden'] = NULL;
 
 		$vars['options'] = array(
 			'reset'  	=> lang('email_reset_selected'),
-			'delete'    => lang('delete_selected')
+			'delete'	=> lang('delete_selected')
 		);
 		$vars["add_email_notif_action"] = BASE.AMP.'C=addons_modules'.AMP.'M=show_module_cp'.AMP.'module=hop_404_reporter'.AMP.'method=add_email';
 
@@ -586,91 +562,6 @@ class hop_404_reporter_mcp
 	}
 
 	/**
-	 * Get the email notifications data
-	 * Used by email notifications table (gen. JSON)
-	 * Not used in ee3
-	 */
-	function _email_data($state, $params)
-	{
-		//Do the sorting
-		$this->_sort = $state['sort'];
-		$this->_offset = $state['offset'];
-
-		foreach ($this->_sort as $col => $dir)
-		{
-			ee()->db->order_by($col, $dir);
-		}
-
-		//Filtering
-		$this->_keywords = ee()->input->get_post('keywords');
-		$this->_interval_notification_filter = ee()->input->get_post('interval_f');
-		$sql_filter_where = "(`email_address` LIKE '%".ee()->db->escape_like_str($this->_keywords)."%' OR `url_to_match` LIKE '%".ee()->db->escape_like_str($this->_keywords)."%' )";
-		ee()->db->where($sql_filter_where, NULL, TRUE);
-
-		if ($this->_interval_notification_filter)
-		{
-			if ($this->_interval_notification_filter == "interval_always")
-			{
-				ee()->db->where('interval', 'always');
-			}
-			else if ($this->_interval_notification_filter == "interval_once")
-			{
-				ee()->db->where('interval', 'once');
-			}
-		}
-
-		$email_query = ee()->db->get('hop_404_reporter_emails', $this->_perpage, $this->_offset);
-
-		$emails = $email_query->result_array();
-
-		//Count all possible results
-		ee()->db->select('count(*) AS count')
-			->from('hop_404_reporter_emails')
-			->where($sql_filter_where, NULL, TRUE);
-		if ($this->_interval_notification_filter)
-		{
-			if ($this->_interval_notification_filter == "interval_always")
-			{
-				ee()->db->where('interval', 'always');
-			}
-			else if ($this->_interval_notification_filter == "interval_once")
-			{
-				ee()->db->where('interval', 'once');
-			}
-		}
-		$query = ee()->db->get();
-		$query_result_array = $query->result_array();
-		$count = intval($query_result_array[0]['count']);
-
-		//Additional stuff on the results
-		$rows = array();
-		while ($c = array_shift($emails))
-		{
-			//print_r($c);
-			$c["_check"] = form_checkbox('toggle[]', $c["email_id"], FALSE, 'class="toggle"');
-			if (in_array($c["interval"], Hop_404_reporter_helper::get_email_notification_globals()) )
-			{
-				$c["interval"] = lang('email_notif_interval_'.$c["interval"]);
-			}
-			else
-			{
-				//Invalid interval
-				$c["interval"] = lang('email_notif_interval_invalid');
-			}
-			$rows[] = (array) $c;
-		}
-
-		return array(
-			'rows' => (array) $rows,
-			'no_results' => lang('no_emails_results'),
-			'pagination' => array(
-				'per_page' => $this->_perpage,
-				'total_rows' => $count
-			)
-		);
-	}
-
-	/**
 	 * Receive and process POST data from email list page
 	 **/
 	function modify_emails()
@@ -708,7 +599,11 @@ class hop_404_reporter_mcp
 	function add_email()
 	{
 		$this->build_nav();
-
+		$header = array(
+			'title' 	=> lang('hop_404_reporter_module_name'),
+		);
+		ee()->view->header = $header;
+		
 		$vars = array();
 
 		//If we have POST data, try to save the new email notification
@@ -748,7 +643,7 @@ class hop_404_reporter_mcp
 		}
 
 		$vars['action_url'] = ee('CP/URL')->make('addons/settings/hop_404_reporter/add_email');
-    	$vars['form_hidden'] = array('action' => 'add_email');
+		$vars['form_hidden'] = array('action' => 'add_email');
 
 		// return ee()->load->view('add_email', $vars, TRUE);
 		return array(
@@ -759,6 +654,12 @@ class hop_404_reporter_mcp
 			),
 		);
 	}
+	
+	//--------------------------------------------------------------------------
+	//
+	//		  DISPLAY SETTINGS PAGE
+	//		  
+	//--------------------------------------------------------------------------
 
 	/**
 	 * Displays configuration panel
@@ -766,99 +667,132 @@ class hop_404_reporter_mcp
 	function settings()
 	{
 		$this->build_nav();
-		ee()->view->cp_page_title = lang('settings_pagetitle');
-
-		$vars = array();
+		$header = array(
+			'title' 	=> lang('hop_404_reporter_module_name'),
+		);
+		ee()->view->header = $header;
+		
+		$settings = Hop_404_reporter_helper::get_settings();
+		
+		$vars = array(
+			'cp_page_title' => lang('settings_pagetitle'),
+			'base_url' => ee('CP/URL', 'addons/settings/hop_404_reporter/settings')->compile(),
+			'save_btn_text' => lang('settings_save'),
+			'save_btn_text_working' => lang('settings_save_working'),
+		);
+		
+		// Using EE3 API to create config form
+		$vars['sections'] = array(
+			array(
+				array(
+					'title' => 'set_enabled',
+					'desc' => 'set_enabled_desc',
+					'fields' => array(
+						'enabled' => array('type' => 'yes_no', 'value' => $settings["enabled"])
+					)
+				),
+				array(
+					'title' => 'set_send_email_notifications',
+					'desc' => 'set_send_email_notifications_desc',
+					'fields' => array(
+						'send_email_notifications' => array('type' => 'yes_no', 'value' => $settings["send_email_notifications"])
+					)
+				),
+				array(
+					'title' => 'set_referrer_tracking',
+					'desc' => 'set_referrer_tracking_desc',
+					'fields' => array(
+						'referrer_tracking' => array('type' => 'yes_no', 'value' => $settings["referrer_tracking"])
+					)
+				),
+				array(
+					'title' => 'set_email_address_sender',
+					'desc' => 'set_email_address_sender_desc',
+					'fields' => array(
+						'email_address_sender' => array('type' => 'text', 'value' => $settings["email_address_sender"], 'required' => true)
+					)
+				),
+				array(
+					'title' => 'set_email_notification_subject',
+					'desc' => 'set_email_notification_subject_desc',
+					'fields' => array(
+						'email_notification_subject' => array('type' => 'text', 'value' => $settings["email_notification_subject"], 'required' => true)
+					)
+				),
+				array(
+					'title' => 'set_404_email_template',
+					'desc' => 'set_404_email_template_desc',
+					'fields' => array(
+						'email_template' => array('type' => 'textarea', 'value' => $settings["email_template"], 'required' => true)
+					)
+				),
+				array(
+					'title' => '',
+					'fields' => array(
+						'action' => array('type' => 'hidden', 'value' => 'save_settings')
+					)
+				),
+			)
+		);
+		
 
 		if (ee()->input->post('action') == "save_settings")
 		{
 			$settings = array();
 			$form_is_valid = TRUE;
-			if (ee()->input->post('enabled') == 'y')
+			
+			// Validation
+			$validator = ee('Validation')->make();
+			
+			$validator->setRules(array(
+				'enabled' => 'enum[y,n]',
+				'send_email_notifications' => 'enum[y,n]',
+				'referrer_tracking' => 'enum[y,n]',
+			  'email_address_sender' => 'required|email',
+				'email_notification_subject' => 'required',
+				'email_template' => 'required'
+			));
+			$result = $validator->validate($_POST);
+			
+			if ($result->isValid())
 			{
-				$settings["enabled"] = 'y';
-			}
-			else
-			{
-				$settings["enabled"] = 'n';
-			}
+				// Get back all values, store them in array and save them
+				$fields = array();
+				foreach ($vars['sections'] as $settings)
+				{
+					foreach ($settings as $setting)
+					{
+						foreach ($setting['fields'] as $field_name => $field)
+						{
+							$fields[$field_name] = ee()->input->post($field_name);
+						}
+					}
+				}
+				// We don't want to save that field, it's not a setting
+				unset($fields['action']);
+				
+				Hop_404_reporter_helper::save_settings($fields);
+				ee('CP/Alert')->makeInline('shared-form')
+						->asSuccess()
+						->withTitle(lang('preferences_updated'))
+						->addToBody(lang('preferences_updated_desc'))
+						->defer();
 
-			if (ee()->input->post('referrer_tracking') == 'y')
-			{
-				$settings["referrer_tracking"] = 'y';
+				ee()->functions->redirect(ee('CP/URL', 'addons/settings/hop_404_reporter/settings')->compile());
 			}
 			else
 			{
-				$settings["referrer_tracking"] = 'n';
-			}
-
-			if (ee()->input->post('send_email_notifications') == 'y')
-			{
-				$settings["send_email_notifications"] = 'y';
-			}
-			else
-			{
-				$settings["send_email_notifications"] = 'n';
-			}
-
-			if ( filter_var(ee()->input->post('email_address_sender'), FILTER_VALIDATE_EMAIL) )
-			{
-				$settings["email_address_sender"] = ee()->input->post('email_address_sender');
-			}
-			else
-			{
-				$form_is_valid = FALSE;
-				$settings["email_address_sender"] = ee()->input->post('email_address_sender');
-				$vars["form_error_email_address_sender"] = lang('settings_form_error_email_address_sender');
-			}
-
-			if ( ee()->input->post('email_notification_subject') != "" )
-			{
-				$settings["email_notification_subject"] = ee()->input->post('email_notification_subject');
-			}
-			else
-			{
-				$form_is_valid = FALSE;
-				$settings["email_notification_subject"] = ee()->input->post('email_notification_subject');
-				$vars["form_error_email_notification_subject"] = lang('settings_form_error_email_notification_subject');
-			}
-
-			if (ee()->input->post('404_email_template') == '')
-			{
-				//We can't save an empty email template
-				$form_is_valid = FALSE;
-				$vars["form_error_email_template"] = lang('settings_form_error_no_template');
-			}
-			else
-			{
-				$settings["email_template"] = ee()->input->post('404_email_template');
-			}
-
-			if ($form_is_valid)
-			{
-				Hop_404_reporter_helper::save_settings($settings);
-				ee()->session->set_flashdata('message_success', lang('settings_saved_success'));
-				ee()->functions->redirect(ee('CP/URL')->make('addons/settings/hop_404_reporter/settings'));
-			}
-			else
-			{
+				$vars['errors'] = $result;
+				ee('CP/Alert')->makeInline('shared-form')
+					->asIssue()
+					->withTitle(lang('settings_save_error'))
+					->addToBody(lang('settings_save_error_desc'))
+					->now();
 				$vars["settings"] = $settings;
 			}
 
-		}
+		} // ENDIF action = save_settings
 
-		// No data received, means we'll load saved settings
-		if (!isset($form_is_valid))
-		{
-			$vars["settings"] = Hop_404_reporter_helper::get_settings();
-		}
-
-		$vars['action_url'] = ee('CP/URL')->make('addons/settings/hop_404_reporter/settings');
-    	$vars['form_hidden'] = array('action' => 'save_settings');
-
-		//TODO : generate table using ee()->load->library('table'); Useful ? or not ?
-
-		// return ee()->load->view('settings', $vars, TRUE);
 		return array(
 			'heading'			=> lang('settings'),
 			'body'				=> ee('View')->make('hop_404_reporter:settings')->render($vars),
@@ -874,7 +808,11 @@ class hop_404_reporter_mcp
 	public function support()
 	{
 		$this->build_nav();
-
+		$header = array(
+			'title' 	=> lang('hop_404_reporter_module_name'),
+		);
+		ee()->view->header = $header;
+		
 		$vars = array();
 		// return ee()->load->view('support', $vars, TRUE);
 		return array(
@@ -886,10 +824,14 @@ class hop_404_reporter_mcp
 		);
 	}
 	
+	//--------------------------------------------------------------------------
+	//		  GLOBAL METHODS
+	//--------------------------------------------------------------------------
+	
 	/**
 	 * This is building a base url including already existing parameters.
 	 * @param  array	$parameters	Array of names of parameters to keep in the url
-	 * @return [type]             [description]
+	 * @return [type]			 [description]
 	 */
 	protected function _create_base_url_with_existing_parameters($parameters, $post_parameters = array())
 	{

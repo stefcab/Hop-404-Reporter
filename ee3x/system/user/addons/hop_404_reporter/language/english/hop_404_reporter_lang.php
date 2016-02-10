@@ -60,7 +60,7 @@ $lang = array(
 	'email_address'				=> 'Email Address',
 	'url_to_match'				=> 'URL to match',
 	'create_new_one'			=> 'Create a new one',
-	'search_emails_notif'				=> 'Search email notifications',
+	'search_emails_notif'		=> 'Search email notifications',
 
 	//Add email view
 	'preference'				=> 'Preference',
@@ -80,8 +80,21 @@ $lang = array(
 
 	//Settings view
 	'settings'				=> 'Settings',
-	'settings_pagetitle'	=> 'Hop 404 Reporter > Settings',
+	'settings_pagetitle'	=> 'Settings',
 	'settings_save'			=> 'Save',
+	'settings_save_working'	=> 'Saving...',
+	'set_enabled'			=> 'Is Hop 404 reporter on?',
+	'set_enabled_desc'		=> 'If Hop 404 reporter is off, no URL will be recorded, no emails will be sent.',
+	'set_send_email_notifications'		=> 'Do we send email notifications ?',
+	'set_send_email_notifications_desc'	=> 'If not, the 404 urls will be recorded but no email will be send.',
+	'set_referrer_tracking'				=> 'Is Hop 404 reporter referrer tracking on ?',
+	'set_referrer_tracking_desc'		=> 'Referrer tracking will save the referrer URL for each 404 URL occurring.',
+	'set_email_address_sender'			=> 'Sender email address',
+	'set_email_address_sender_desc'		=> 'This email address will be used as the sender for each notification sent.',
+	'set_email_notification_subject'	=> 'Notification email subject',
+	'set_email_notification_subject_desc'	=> 'Subject of the email sent when a 404 occurs.',
+	'set_404_email_template'			=> 'Notification email template',
+	'set_404_email_template_desc'		=> 'You can modify the email people will receive when a 404 occurs. <br />Tags available {site_url}, {404_url}, {referrer_url}, {404_date}, {404_time}',
 	'settings_form_error_email_address_sender'		=> 'It seems that this email address is not valid',
 	'settings_form_error_email_notification_subject'=> 'The email subject cannot be empty',
 	'settings_form_error_no_template'				=> "You don't want to send en empty email, do you ? ;)",
