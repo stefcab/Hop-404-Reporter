@@ -94,6 +94,13 @@ class Hop_404_reporter_helper
 		}
 	}
 	
+	/**
+	 * Send email notifications about the given 404 URL
+	 * @param  string $url          [description]
+	 * @param  [type] $referrer_url [description]
+	 * @param  [type] $datetime     [description]
+	 * @return [type]               [description]
+	 */
 	public static function send_email_notifications($url = "", $referrer_url, $datetime)
 	{
 		if ($url == "")

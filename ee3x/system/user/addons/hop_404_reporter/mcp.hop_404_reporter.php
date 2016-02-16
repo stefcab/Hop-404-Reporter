@@ -596,6 +596,10 @@ class hop_404_reporter_mcp
 		ee()->functions->redirect(ee('CP/URL')->make('addons/settings/hop_404_reporter/display_emails'));
 	}
 
+	/**
+	 * Create an email notification
+	 * @return Page cotent or page redirection
+	 */
 	function add_email()
 	{
 		$this->build_nav();
@@ -604,46 +608,105 @@ class hop_404_reporter_mcp
 		);
 		ee()->view->header = $header;
 		
-		$vars = array();
-
+		$vars = array(
+			'cp_page_title' => lang('email_create_notification'),
+			'base_url' => ee('CP/URL', 'addons/settings/hop_404_reporter/add_email')->compile(),
+			'save_btn_text' => lang('settings_save'),
+			'save_btn_text_working' => lang('settings_save_working'),
+		);
+		
+		// Using EE3 API to create config form
+		$vars['sections'] = array(
+			array(
+				array(
+					'title' => 'email_notif_email_label',
+					'desc' => 'email_notif_email_desc',
+					'fields' => array(
+						'email_address' => array('type' => 'text', 'required' => 'true', 'value' => '')
+					)
+				),
+				array(
+					'title' => 'email_notif_url_label',
+					'desc' => 'email_notif_url_desc',
+					'fields' => array(
+						'url_to_match' => array('type' => 'text', 'value' => '')
+					)
+				),
+				array(
+					'title' => 'email_notif_interval_label',
+					'desc' => 'email_notif_interval_desc',
+					'fields' => array(
+						'interval' => array('type' => 'select', 'required' => 'true', 'choices' => array('once' => lang('email_notif_interval_once'), 'always' => lang('email_notif_interval_always')))
+					)
+				),
+				array(
+					'title' => '',
+					'fields' => array(
+						'action' => array('type' => 'hidden', 'value' => 'add_email')
+					)
+				),
+			)
+		);
+		
 		//If we have POST data, try to save the new email notification
 		if (ee()->input->post('action') == 'add_email')
 		{
 			$form_is_valid = TRUE;
-			$email_str = ee()->input->post('email_address', TRUE);
-			if (!filter_var($email_str, FILTER_VALIDATE_EMAIL)) {
-				$form_is_valid = FALSE;
-				$vars["form_error_email"] = "email error";
-				$vars["form_value_email"] = $email_str;
-			}
-
-			$regex_str = ee()->input->post('url_filter', TRUE);
-			//No real tests to do...
-			$vars["form_value_url_filter"] = $regex_str;
-
-			$interval_str = ee()->input->post('notification_interval', TRUE);
-			if ( !in_array($interval_str, Hop_404_reporter_helper::get_email_notification_globals()) )
+			
+			// Validation
+			$validator = ee('Validation')->make();
+			
+			$validator->defineRule('notif_interval', function($key, $value, $parameters)
 			{
-				$form_is_valid = FALSE;
-				$vars["form_error_interval"] = "interval error";
-
-			}
-
-			if ($form_is_valid)
+				if (!in_array($value, Hop_404_reporter_helper::get_email_notification_globals()))
+				{
+					return lang('email_notif_interval_invalid');
+				}
+				return TRUE;
+			});
+			
+			$validator->setRules(array(
+				'email_address' => 'required|email',
+				'interval' => 'required|notif_interval'
+			));
+			$result = $validator->validate($_POST);
+			
+			if ($result->isValid())
 			{
-				$data = array (
-					"email_address" => $email_str,
-					"url_to_match"	=> $regex_str,
-					"interval"		=> $interval_str
-				);
-				ee()->db->insert('hop_404_reporter_emails', $data);
+				// Get back all values, store them in array and save them
+				$fields = array();
+				foreach ($vars['sections'] as $settings)
+				{
+					foreach ($settings as $setting)
+					{
+						foreach ($setting['fields'] as $field_name => $field)
+						{
+							$fields[$field_name] = ee()->input->post($field_name);
+						}
+					}
+				}
+				// We don't want to save that field, it's not a setting
+				unset($fields['action']);
+				
+				ee()->db->insert('hop_404_reporter_emails', $fields);
+				ee('CP/Alert')->makeInline('shared-form')
+						->asSuccess()
+						->withTitle(lang('preferences_updated'))
+						->addToBody(lang('preferences_updated_desc'))
+						->defer();
 
-				ee()->functions->redirect(ee('CP/URL')->make('addons/settings/hop_404_reporter/display_emails'));
+				ee()->functions->redirect(ee('CP/URL', 'addons/settings/hop_404_reporter/display_emails')->compile());
+			}
+			else
+			{
+				$vars['errors'] = $result;
+				ee('CP/Alert')->makeInline('shared-form')
+					->asIssue()
+					->withTitle(lang('settings_save_error'))
+					->addToBody(lang('settings_save_error_desc'))
+					->now();
 			}
 		}
-
-		$vars['action_url'] = ee('CP/URL')->make('addons/settings/hop_404_reporter/add_email');
-		$vars['form_hidden'] = array('action' => 'add_email');
 
 		// return ee()->load->view('add_email', $vars, TRUE);
 		return array(
@@ -657,7 +720,7 @@ class hop_404_reporter_mcp
 	
 	//--------------------------------------------------------------------------
 	//
-	//		  DISPLAY SETTINGS PAGE
+	//		  DISPLAY & SAVE SETTINGS PAGE
 	//		  
 	//--------------------------------------------------------------------------
 
@@ -748,7 +811,7 @@ class hop_404_reporter_mcp
 				'enabled' => 'enum[y,n]',
 				'send_email_notifications' => 'enum[y,n]',
 				'referrer_tracking' => 'enum[y,n]',
-			  'email_address_sender' => 'required|email',
+				'email_address_sender' => 'required|email',
 				'email_notification_subject' => 'required',
 				'email_template' => 'required'
 			));
