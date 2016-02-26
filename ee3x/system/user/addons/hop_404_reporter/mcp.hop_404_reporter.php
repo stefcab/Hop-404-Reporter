@@ -651,8 +651,6 @@ class hop_404_reporter_mcp
 		//If we have POST data, try to save the new email notification
 		if (ee()->input->post('action') == 'add_email')
 		{
-			$form_is_valid = TRUE;
-			
 			// Validation
 			$validator = ee('Validation')->make();
 			

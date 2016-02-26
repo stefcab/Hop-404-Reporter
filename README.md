@@ -5,7 +5,7 @@ Hop 404 Reporter will alert you to 404 errors happening on your website -- which
 
 If you want to use it, [please buy it](https://devot-ee.com/add-ons/hop-404-reporter). :)
 
-[More information](ee3x/system/user/addons/hop_404_reporter/README.md)
+[More information, how to use...](ee3x/system/user/addons/hop_404_reporter/README.md)
 
 Want more ?
 ===========
