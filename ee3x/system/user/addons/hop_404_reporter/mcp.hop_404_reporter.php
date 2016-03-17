@@ -130,8 +130,6 @@ class hop_404_reporter_mcp
 
 		$url_query = ee()->db->get('hop_404_reporter_urls', $this->_perpage, $this->_offset);
 		$urls = $url_query->result();
-		
-		// print_r( ee()->db->last_query());
 
 		// Process data and format it for Table
 		$data = array();
@@ -151,7 +149,6 @@ class hop_404_reporter_mcp
 				)
 			);
 		}
-		// print_r($data);
 		$table->setData($data);
 
 		$vars['table'] = $table->viewData($this->_create_base_url_with_existing_parameters(array('filter_by_date_range', 'filter_by_ref_url', 'search'), array('search')));
@@ -239,7 +236,6 @@ class hop_404_reporter_mcp
 			->add($dates);
 		
 		// ee()->view->filters = $filters->render($this->_base_url);
-		// print_r(ee()->view);
 		$this->_filters = $filters->render($this->_filters_base_url);
 	}
 	
@@ -318,8 +314,6 @@ class hop_404_reporter_mcp
 		{
 			ee()->functions->redirect(ee('CP/URL')->make('addons/settings/hop_404_reporter'));
 		}
-
-		// print_r($urls_to_modify);
 
 		$count = 0;
 		foreach($urls_to_modify as $url_id)
@@ -415,7 +409,6 @@ class hop_404_reporter_mcp
 				)
 			);
 		}
-		// print_r($data);
 		$table->setData($data);
 
 		$vars['table'] = $table->viewData($this->_create_base_url_with_existing_parameters(array('filter_by_interval', 'search'), array('search')));
@@ -505,7 +498,6 @@ class hop_404_reporter_mcp
 			->add($intervals);
 		
 		// ee()->view->filters = $filters->render($this->_base_url);
-		// print_r(ee()->view);
 		$this->_filters = $filters->render($this->_filters_base_url);
 	}
 	
@@ -567,8 +559,6 @@ class hop_404_reporter_mcp
 	function modify_emails()
 	{
 		$emails_to_modify = ee()->input->post('emails');
-
-		// print_r($emails_to_modify);
 
 		$count = 0;
 		foreach($emails_to_modify as $email_id)

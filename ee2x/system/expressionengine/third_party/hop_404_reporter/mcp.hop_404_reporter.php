@@ -147,7 +147,6 @@ class hop_404_reporter_mcp
 	 */
 	function _url_data($state, $params)
 	{
-		//print_r($params);
 		//$this->_setup_query_filters($state, $params);
 		
 		//Do the sorting 
@@ -231,7 +230,6 @@ class hop_404_reporter_mcp
 		$rows = array();
 		while ($c = array_shift($url))
 		{
-			//print_r($c);
 			$c["_check"] = form_checkbox('toggle[]', $c["url_id"], FALSE, 'class="toggle"');
 			if ($c["last_occurred"])
 			{
@@ -270,8 +268,6 @@ class hop_404_reporter_mcp
 	function modify_urls()
 	{
 		$urls_to_modify = ee()->input->post('toggle');
-		
-		//print_r($urls_to_modify);
 		
 		$count = 0;
 		foreach($urls_to_modify as $url_id)
@@ -422,7 +418,6 @@ class hop_404_reporter_mcp
 		$rows = array();
 		while ($c = array_shift($emails))
 		{
-			//print_r($c);
 			$c["_check"] = form_checkbox('toggle[]', $c["email_id"], FALSE, 'class="toggle"');
 			if (in_array($c["interval"], Hop_404_reporter_helper::get_email_notification_globals()) )
 			{
@@ -452,8 +447,6 @@ class hop_404_reporter_mcp
 	function modify_emails()
 	{
 		$emails_to_modify = ee()->input->post('toggle');
-		
-		//print_r($emails_to_modify);
 		
 		$count = 0;
 		foreach($emails_to_modify as $email_id)

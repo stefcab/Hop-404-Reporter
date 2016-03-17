@@ -114,7 +114,6 @@ class Hop_404_reporter_helper
 		
 		if ($email_template == "") return; // useless to send an empty email...
 		$email_txt = str_replace(array('{site_url}', '{404_url}', '{referrer_url}', '{404_date}', '{404_time}'), array(ee()->functions->create_url(''), $url, $referrer_url, $datetime->format('Y-m-d'), $datetime->format('H:i:s')), $email_template);
-		//echo $email_txt;
 		
 		$email_sender = $hop_settings["email_address_sender"];
 		$email_subject = $hop_settings["email_notification_subject"];
@@ -154,7 +153,6 @@ class Hop_404_reporter_helper
 				}
 			}
 			
-			//echo 'sending email to ' . $row["email_address"].'<br>';
 			if ($send_email)
 			{
 				ee()->email->mailtype = 'text';

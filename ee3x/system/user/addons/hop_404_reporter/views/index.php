@@ -11,10 +11,7 @@
 
 		<?=form_open($action_url, array('name' => 'target', 'id' => 'target'))?>
 		<?php
-		// echo $table_html;
-		// echo $pagination_html;
 
-		//$this->view('_shared/table', $table);
 		$this->embed('ee:_shared/table', $table);
 		echo $pagination;
 		?>
