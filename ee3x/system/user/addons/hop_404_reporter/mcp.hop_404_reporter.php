@@ -47,7 +47,7 @@ class hop_404_reporter_mcp
 		$sd_div = $sidebar->addHeader(lang('nav_settings'));
 		$sd_div_list = $sd_div->addBasicList();
 		$sd_div_list->addItem(lang('settings'), ee('CP/URL', 'addons/settings/hop_404_reporter/settings'));
-		$sd_div_list->addItem(lang('support_page_title'), ee('CP/URL', 'addons/settings/hop_404_reporter/support'));
+		$sd_div_list->addItem(lang('support_page_title'), ee('CP/URL', 'addons/manual/hop_404_reporter'));
 		
 	}
 
@@ -824,10 +824,10 @@ class hop_404_reporter_mcp
 				
 				Hop_404_reporter_helper::save_settings($fields);
 				ee('CP/Alert')->makeInline('shared-form')
-						->asSuccess()
-						->withTitle(lang('preferences_updated'))
-						->addToBody(lang('preferences_updated_desc'))
-						->defer();
+					->asSuccess()
+					->withTitle(lang('preferences_updated'))
+					->addToBody(lang('preferences_updated_desc'))
+					->defer();
 
 				ee()->functions->redirect(ee('CP/URL', 'addons/settings/hop_404_reporter/settings')->compile());
 			}
@@ -847,28 +847,6 @@ class hop_404_reporter_mcp
 		return array(
 			'heading'			=> lang('settings'),
 			'body'				=> ee('View')->make('hop_404_reporter:settings')->render($vars),
-			'breadcrumb'	=> array(
-			  ee('CP/URL', 'addons/settings/hop_404_reporter')->compile() => lang('hop_404_reporter_module_name')
-			),
-		);
-	}
-
-	/**
-	 * Displays the Support page with help and stuff
-	 */
-	public function support()
-	{
-		$this->build_nav();
-		$header = array(
-			'title' 	=> lang('hop_404_reporter_module_name'),
-		);
-		ee()->view->header = $header;
-		
-		$vars = array();
-		// return ee()->load->view('support', $vars, TRUE);
-		return array(
-			'heading'			=> lang('support_page_title'),
-			'body'				=> ee('View')->make('hop_404_reporter:support')->render($vars),
 			'breadcrumb'	=> array(
 			  ee('CP/URL', 'addons/settings/hop_404_reporter')->compile() => lang('hop_404_reporter_module_name')
 			),
