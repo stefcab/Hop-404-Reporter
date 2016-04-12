@@ -22,6 +22,12 @@ In order to function, Hop 404 Reporter requires you to put this tag -- `{exp:hop
 
 It also requires you to have a 404 template specified in your "Global Template Preferences" -- and it requires you to be generating a 404 page for bad URLs; ExpressionEngine may not always generate a 404 page when you think it should, but that's beyond the capabilities of this add-on to solve. 
 
+
+## Support
+
+Having issues ? Found a bug ? Suggestions ? Contact us at [tech@hopstudios.com](mailto:tech@hopstudios.com)
+
+
 ## Changelog
 
 ### 1.0
