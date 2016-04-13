@@ -119,7 +119,7 @@ class hop_404_reporter_mcp
 		//--- Get Data ---
 		
 		//Setup query parameters
-		$this->url_query_setup();
+		$this->urls_query_setup();
 		
 		//Setup pagination params
 		if (ee()->input->get('page') != NULL)
@@ -158,7 +158,7 @@ class hop_404_reporter_mcp
 		ee()->db->select('count(*) AS count')
 			->from('hop_404_reporter_urls');
 		//Setup params
-		$this->url_query_setup();
+		$this->urls_query_setup();
 		//Get results
 		$query = ee()->db->get();
 		$query_result_array = $query->result_array();
@@ -214,15 +214,15 @@ class hop_404_reporter_mcp
 		// In order to keep the search for later, we set it as a GET variable.
 		$this->_filters_base_url = $this->_create_base_url_with_existing_parameters(array('sort_col', 'sort_dir', 'search'), array('search'));
 		
-		$dates = ee('CP/Filter')->make('filter_by_date_range', 'filter_date_range', array(
-			'1' 	=> lang('filter_last_day'),
-			'7'		=> lang('filter_last_week'),
-			'31'	=> lang('filter_last_month'),
-			'92'	=> lang('filter_last_3months'),
-			'182'	=> lang('filter_last_6months'),
-			'365'	=> lang('filter_last_year')
-		));
-		$dates->disableCustomValue();
+		// $dates = ee('CP/Filter')->make('filter_by_date_range', 'filter_date_range', array(
+		// 	'1' 	=> lang('filter_last_day'),
+		// 	'7'		=> lang('filter_last_week'),
+		// 	'31'	=> lang('filter_last_month'),
+		// 	'92'	=> lang('filter_last_3months'),
+		// 	'182'	=> lang('filter_last_6months'),
+		// 	'365'	=> lang('filter_last_year')
+		// ));
+		// $dates->disableCustomValue();
 		
 		$referers = ee('CP/Filter')->make('filter_by_ref_url', 'filter_referrer_url', array(
 			'referrer_saved'	=> lang('filter_referrer_saved'),
@@ -233,7 +233,8 @@ class hop_404_reporter_mcp
 		
 		$filters = ee('CP/Filter')
 			->add($referers)
-			->add($dates);
+			// ->add($dates);
+			->add('Date');
 		
 		// ee()->view->filters = $filters->render($this->_base_url);
 		$this->_filters = $filters->render($this->_filters_base_url);
@@ -243,7 +244,7 @@ class hop_404_reporter_mcp
 	 * Will get parameters and add proper query parameters
 	 * @return [type] [description]
 	 */
-	private function url_query_setup()
+	private function urls_query_setup()
 	{
 		// Get parameters
 		if (ee()->input->get('sort_col') != NULL)
@@ -296,6 +297,16 @@ class hop_404_reporter_mcp
 		if (ee()->input->get('filter_by_date_range'))
 		{
 			$days = intval(ee()->input->get('filter_by_date_range'));
+			$datetime = new DateTime();
+			$datetime->setTimestamp(ee()->localize->now);
+			$datetime->sub(new DateInterval('P'.$days.'D'));
+			ee()->db->where('last_occurred >', $datetime->format('Y-m-d H:i:s'));
+		}
+		
+		if (ee()->input->get('filter_by_date'))
+		{
+			$seconds = ee()->input->get('filter_by_date');
+			$days = $seconds/3600/24;
 			$datetime = new DateTime();
 			$datetime->setTimestamp(ee()->localize->now);
 			$datetime->sub(new DateInterval('P'.$days.'D'));

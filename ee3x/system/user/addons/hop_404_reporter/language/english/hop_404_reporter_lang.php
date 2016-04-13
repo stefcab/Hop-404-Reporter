@@ -44,6 +44,7 @@ $lang = array(
 	'--with_selected--'			=> '-- with selected --',
 	'search_urls'				=> 'Search URLs',
 	'url_deleted_success'		=> 'URL(s) deleted',
+	'custom_date'				=> 'Custom Date',
 
 	//Email list view
 	'email_list_pagetitle'		=> 'Email notifications',
