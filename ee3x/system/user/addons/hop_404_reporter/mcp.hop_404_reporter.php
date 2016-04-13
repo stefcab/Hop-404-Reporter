@@ -328,7 +328,12 @@ class hop_404_reporter_mcp
 
 		if (ee()->input->post('bulk_action') == "delete")
 		{
-			ee()->session->set_flashdata('message_success', sprintf(lang('url_deleted_message'), $count));
+			ee('CP/Alert')
+				->makeInline('url_deleted_success')
+				->asSuccess()
+				->withTitle(lang('url_deleted_success'))
+				->addToBody(sprintf(lang('url_deleted_message'), $count))
+				->defer();
 		}
 		ee()->functions->redirect(ee('CP/URL')->make('addons/settings/hop_404_reporter'));
 	}
@@ -435,7 +440,6 @@ class hop_404_reporter_mcp
 			'reset'  	=> lang('email_reset_selected'),
 			'delete'	=> lang('delete_selected')
 		);
-		$vars["add_email_notif_action"] = BASE.AMP.'C=addons_modules'.AMP.'M=show_module_cp'.AMP.'module=hop_404_reporter'.AMP.'method=add_email';
 
 		$vars["filter_keywords"] = $this->_keywords;
 		//$vars["filter_interval_selected"] = $this->_interval_notification_filter;
@@ -489,8 +493,8 @@ class hop_404_reporter_mcp
 		$this->_filters_base_url = $this->_create_base_url_with_existing_parameters(array('sort_col', 'sort_dir', 'search'), array('search'));
 		
 		$intervals = ee('CP/Filter')->make('filter_by_interval', 'filter_interval', array(
-			'interval_always'	=> lang('email_notif_interval_always'),
-			'interval_once'		=> lang('email_notif_interval_once')
+			'interval_always'	=> lang('email_notification_interval_always'),
+			'interval_once'		=> lang('email_notification_interval_once')
 		));
 		$intervals->disableCustomValue();
 		
@@ -577,11 +581,21 @@ class hop_404_reporter_mcp
 
 		if (ee()->input->post('bulk_action') == "delete")
 		{
-			ee()->session->set_flashdata('message_success', sprintf(lang('email_deleted_message'), $count));
+			ee('CP/Alert')
+				->makeInline('email_deleted_success')
+				->asSuccess()
+				->withTitle(lang('email_deleted_success'))
+				->addToBody(sprintf(lang('email_deleted_message'), $count))
+				->defer();
 		}
 		else if (ee()->input->post('bulk_action') == "reset")
 		{
-			ee()->session->set_flashdata('message_success', sprintf(lang('email_reset_message'), $count));
+			ee('CP/Alert')
+				->makeInline('email_reseted_success')
+				->asSuccess()
+				->withTitle(lang('email_reseted_success'))
+				->addToBody(sprintf(lang('email_reset_message'), $count))
+				->defer();
 		}
 		ee()->functions->redirect(ee('CP/URL')->make('addons/settings/hop_404_reporter/display_emails'));
 	}
@@ -609,24 +623,24 @@ class hop_404_reporter_mcp
 		$vars['sections'] = array(
 			array(
 				array(
-					'title' => 'email_notif_email_label',
-					'desc' => 'email_notif_email_desc',
+					'title' => 'email_notification_email_label',
+					'desc' => 'email_notification_email_desc',
 					'fields' => array(
 						'email_address' => array('type' => 'text', 'required' => 'true', 'value' => '')
 					)
 				),
 				array(
-					'title' => 'email_notif_url_label',
-					'desc' => 'email_notif_url_desc',
+					'title' => 'email_notification_url_label',
+					'desc' => 'email_notification_url_desc',
 					'fields' => array(
 						'url_to_match' => array('type' => 'text', 'value' => '')
 					)
 				),
 				array(
-					'title' => 'email_notif_interval_label',
-					'desc' => 'email_notif_interval_desc',
+					'title' => 'email_notification_interval_label',
+					'desc' => 'email_notification_interval_desc',
 					'fields' => array(
-						'interval' => array('type' => 'select', 'required' => 'true', 'choices' => array('once' => lang('email_notif_interval_once'), 'always' => lang('email_notif_interval_always')))
+						'interval' => array('type' => 'select', 'required' => 'true', 'choices' => array('once' => lang('email_notification_interval_once'), 'always' => lang('email_notification_interval_always')))
 					)
 				),
 				array(
@@ -648,7 +662,7 @@ class hop_404_reporter_mcp
 			{
 				if (!in_array($value, Hop_404_reporter_helper::get_email_notification_globals()))
 				{
-					return lang('email_notif_interval_invalid');
+					return lang('email_notificaiton_interval_invalid');
 				}
 				return TRUE;
 			});

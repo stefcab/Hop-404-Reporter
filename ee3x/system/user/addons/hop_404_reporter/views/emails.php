@@ -6,7 +6,9 @@
 			<a class="btn tn action" href="<?= ee('CP/URL')->make('addons/settings/hop_404_reporter/add_email')?>"><?=lang('email_add_notification') ?></a>
 		</fieldset>
 		<h1><?=lang('email_page_title')?></h1>
-
+		
+		<?= ee('CP/Alert')->getAllInlines() ?>
+		
 		<?=lang('email_page_description')?>
 		
 		<?= $filters ?>

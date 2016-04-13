@@ -5,6 +5,8 @@
 	<div class="tbl-ctrls">
 		<h1><?=lang('404_url_list_title')?></h1>
 
+		<?= ee('CP/Alert')->getAllInlines() ?>
+		
 		<?=lang('404_url_list_description')?>
 
 		<?= $filters ?>
