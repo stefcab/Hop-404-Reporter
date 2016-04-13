@@ -725,7 +725,7 @@ class hop_404_reporter_mcp
 	//--------------------------------------------------------------------------
 	//
 	//		  DISPLAY & SAVE SETTINGS PAGE
-	//		  
+	//
 	//--------------------------------------------------------------------------
 
 	/**
@@ -776,7 +776,7 @@ class hop_404_reporter_mcp
 					'title' => 'set_email_address_sender',
 					'desc' => 'set_email_address_sender_desc',
 					'fields' => array(
-						'email_address_sender' => array('type' => 'text', 'value' => $settings["email_address_sender"], 'required' => true)
+						'email_address_sender' => array('type' => 'text', 'value' => $settings["email_address_sender"])
 					)
 				),
 				array(
@@ -815,7 +815,7 @@ class hop_404_reporter_mcp
 				'enabled' => 'enum[y,n]',
 				'send_email_notifications' => 'enum[y,n]',
 				'referrer_tracking' => 'enum[y,n]',
-				'email_address_sender' => 'required|email',
+				'email_address_sender' => 'email',
 				'email_notification_subject' => 'required',
 				'email_template' => 'required'
 			));

@@ -116,6 +116,10 @@ class Hop_404_reporter_helper
 		$email_txt = str_replace(array('{site_url}', '{404_url}', '{referrer_url}', '{404_date}', '{404_time}'), array(ee()->functions->create_url(''), $url, $referrer_url, $datetime->format('Y-m-d'), $datetime->format('H:i:s')), $email_template);
 		
 		$email_sender = $hop_settings["email_address_sender"];
+		if ($email_sender == "")
+		{
+			$email_sender = ee()->config->item('webmaster_email');
+		}
 		$email_subject = $hop_settings["email_notification_subject"];
 		ee()->load->library('email');
 		
