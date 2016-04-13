@@ -691,18 +691,20 @@ class hop_404_reporter_mcp
 				unset($fields['action']);
 				
 				ee()->db->insert('hop_404_reporter_emails', $fields);
-				ee('CP/Alert')->makeInline('shared-form')
-						->asSuccess()
-						->withTitle(lang('preferences_updated'))
-						->addToBody(lang('preferences_updated_desc'))
-						->defer();
+				ee('CP/Alert')
+					->makeInline('shared-form')
+					->asSuccess()
+					->withTitle(lang('emaill_notification_add_success'))
+					->addToBody(lang('emaill_notification_add_success_desc'))
+					->defer();
 
 				ee()->functions->redirect(ee('CP/URL', 'addons/settings/hop_404_reporter/display_emails')->compile());
 			}
 			else
 			{
 				$vars['errors'] = $result;
-				ee('CP/Alert')->makeInline('shared-form')
+				ee('CP/Alert')
+					->makeInline('shared-form')
 					->asIssue()
 					->withTitle(lang('settings_save_error'))
 					->addToBody(lang('settings_save_error_desc'))

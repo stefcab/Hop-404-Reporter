@@ -80,6 +80,8 @@ $lang = array(
 	'email_notification_interval_once' 		=> 'Once',
 	'email_notification_interval_always' 	=> 'Every Time',
 	'email_notificaiton_interval_invalid'	=> 'Invalid interval parameter',
+	'emaill_notification_add_success'		=> 'Email notification added',
+	'emaill_notification_add_success_desc'	=> 'The new email notification has been saved.',
 
 	//Settings view
 	'settings'				=> 'Settings',
