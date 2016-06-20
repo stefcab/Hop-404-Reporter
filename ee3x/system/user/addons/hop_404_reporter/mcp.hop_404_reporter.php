@@ -8,7 +8,7 @@ class hop_404_reporter_mcp
 {
 	private $_base_url;
 	private $_base_url_params;
-	private $_perpage = 5;
+	private $_perpage = 25;
 	private $_page = 1;
 	private $_offset = 0;
 	private $_limit;
@@ -51,29 +51,6 @@ class hop_404_reporter_mcp
 		
 	}
 
-	/**
-	 * Build pagination configuration
-	 */
-	function pagination_config($method, $total_rows)
-	{
-		// Pass the relevant data to the paginate class
-		// $config['base_url'] = BASE.AMP.'C=addons_modules'.AMP.'M=show_module_cp'.AMP.'module=hop_404_reporter'.AMP.'method='.$method;
-		// $config['total_rows'] = $total_rows;
-		// $config['per_page'] = $this->_perpage;
-		// $config['page_query_string'] = TRUE;
-		// $config['query_string_segment'] = 'rownum';
-		// $config['full_tag_open'] = '<p id="paginationLinks">';
-		// $config['full_tag_close'] = '</p>';
-		// $config['prev_link'] = '<img src="'.ee()->cp->cp_theme_url.'images/pagination_prev_button.gif" width="13" height="13" alt="<" />';
-		// $config['next_link'] = '<img src="'.ee()->cp->cp_theme_url.'images/pagination_next_button.gif" width="13" height="13" alt=">" />';
-		// $config['first_link'] = '<img src="'.ee()->cp->cp_theme_url.'images/pagination_first_button.gif" width="13" height="13" alt="< <" />';
-		// $config['last_link'] = '<img src="'.ee()->cp->cp_theme_url.'images/pagination_last_button.gif" width="13" height="13" alt="> >" />';
-		// 
-		// $sidebar = ee('CP/Sidebar')->make();
-		// 
-		// return $config;
-	}
-
 	//--------------------------------------------------------------------------
 	//		  INDEX PAGE (URLs LIST)
 	//--------------------------------------------------------------------------
@@ -84,6 +61,12 @@ class hop_404_reporter_mcp
 	 */
 	function index()
 	{
+		// If POST action, do that first
+		if(ee()->input->post('action'))
+		{
+			$this->modify_urls();
+		}
+		
 		$this->build_nav();
 		$header = array(
 			'title' 	=> lang('hop_404_reporter_module_name'),
@@ -118,7 +101,7 @@ class hop_404_reporter_mcp
 
 		//--- Get Data ---
 		
-		//Setup query parameters
+		//Setup query parameters (using GET/POST params...)
 		$this->urls_query_setup();
 		
 		//Setup pagination params
@@ -153,12 +136,14 @@ class hop_404_reporter_mcp
 
 		$vars['table'] = $table->viewData($this->_create_base_url_with_existing_parameters(array('filter_by_date_range', 'filter_by_ref_url', 'search'), array('search')));
 
-		// Pagination
+		// -- Pagination --
 		// Get count
 		ee()->db->select('count(*) AS count')
 			->from('hop_404_reporter_urls');
-		//Setup params
+		
+		//Setup params (because we ran our first query, params need to be set again)
 		$this->urls_query_setup();
+		
 		//Get results
 		$query = ee()->db->get();
 		$query_result_array = $query->result_array();
@@ -168,11 +153,19 @@ class hop_404_reporter_mcp
 		$pagination->perPage($this->_perpage);
 		$pagination->currentPage($this->_page);
 
-		$vars['pagination'] = $pagination->render($this->_create_base_url_with_existing_parameters(array('sort_col', 'sort_dir', 'filter_by_ref_url', 'filter_by_date_range', 'search'), array('search')));
+		$vars['pagination'] = $pagination->render(
+			$this->_create_base_url_with_existing_parameters(
+				array('sort_col', 'sort_dir', 'filter_by_ref_url', 'filter_by_date_range', 'search', 'filter_by_date', 'perpage'), 
+				array('search', 'filter_by_date', 'perpage')
+			)
+		);
 
 		// Default vars
 
-		$vars['action_url'] = ee('CP/URL')->make('addons/settings/hop_404_reporter/modify_urls');
+		$vars['action_url'] = $this->_create_base_url_with_existing_parameters(
+			array('sort_col', 'sort_dir', 'filter_by_ref_url', 'filter_by_date_range', 'search', 'filter_by_date', 'perpage'), 
+			array('search', 'filter_by_date', 'perpage')
+		);
 		$vars['form_hidden'] = NULL;
 
 		$vars["filter_keywords"] = $this->_keywords;
@@ -182,7 +175,7 @@ class hop_404_reporter_mcp
 		// $vars["filter_date_range_selected"] = $this->_date_range_filter;
 		
 		//Setup filters
-		$this->setup_url_list_filters();
+		$this->setup_url_list_filters($total_count);
 		$vars['filters'] = $this->_filters;
 		$vars['filters_base_url'] = $this->_filters_base_url;
 
@@ -208,21 +201,11 @@ class hop_404_reporter_mcp
 	 * Setup filters for the index page (URLs list)
 	 * @return [type] [description]
 	 */
-	private function setup_url_list_filters()
+	private function setup_url_list_filters($total_count)
 	{	
 		//Build filters base url (keep some parameters)
 		// In order to keep the search for later, we set it as a GET variable.
 		$this->_filters_base_url = $this->_create_base_url_with_existing_parameters(array('sort_col', 'sort_dir', 'search'), array('search'));
-		
-		// $dates = ee('CP/Filter')->make('filter_by_date_range', 'filter_date_range', array(
-		// 	'1' 	=> lang('filter_last_day'),
-		// 	'7'		=> lang('filter_last_week'),
-		// 	'31'	=> lang('filter_last_month'),
-		// 	'92'	=> lang('filter_last_3months'),
-		// 	'182'	=> lang('filter_last_6months'),
-		// 	'365'	=> lang('filter_last_year')
-		// ));
-		// $dates->disableCustomValue();
 		
 		$referers = ee('CP/Filter')->make('filter_by_ref_url', 'filter_referrer_url', array(
 			'referrer_saved'	=> lang('filter_referrer_saved'),
@@ -233,8 +216,10 @@ class hop_404_reporter_mcp
 		
 		$filters = ee('CP/Filter')
 			->add($referers)
-			// ->add($dates);
-			->add('Date');
+			// ->add($dates)
+			->add('Date')
+			->add('Perpage', $total_count)
+			;
 		
 		// ee()->view->filters = $filters->render($this->_base_url);
 		$this->_filters = $filters->render($this->_filters_base_url);
@@ -303,14 +288,78 @@ class hop_404_reporter_mcp
 			ee()->db->where('last_occurred >', $datetime->format('Y-m-d H:i:s'));
 		}
 		
-		if (ee()->input->get('filter_by_date'))
+		// In case user clicked on a filter
+		// The value is a number of seconds if user clicked on a default filter
+		// OR the value is a custom date that was inputed by the user
+		// if (ee()->input->get('filter_by_date') && !ee()->input->post('filter_by_date'))
+		// {
+		// 	if (ctype_digit(ee()->input->get('filter_by_date')))
+		// 	{
+		// 		$seconds = ee()->input->get('filter_by_date');
+		// 		$days = $seconds/3600/24;
+		// 		$datetime = new DateTime();
+		// 		$datetime->setTimestamp(ee()->localize->now);
+		// 		$datetime->sub(new DateInterval('P'.$days.'D'));
+		// 		ee()->db->where('last_occurred >', $datetime->format('Y-m-d H:i:s'));
+		// 	}
+		// 	else
+		// 	{
+		// 		if (!is_array(ee()->input->get('filter_by_date')))
+		// 		{
+		// 			// var_dump(ee()->input->get('filter_by_date'));
+		// 			$datetime = new DateTime(ee()->input->get('filter_by_date'));
+		// 			ee()->db->where('last_occurred >', $datetime->format('Y-m-d H:i:s'));
+		// 		}
+		// 		
+		// 	}
+		// 	
+		// }
+		// 
+		// // In case user input a custom value
+		// // The value is a date M/D/Y (I hate that format)
+		// // Note : we will pass this along as a GET var for pagination
+		// if (ee()->input->post('filter_by_date'))
+		// {
+		// 	$datetime = new DateTime(ee()->input->post('filter_by_date'));
+		// 	ee()->db->where('last_occurred >', $datetime->format('Y-m-d H:i:s'));
+		// }
+		
+		// Setup temporary filters to automatically retrieve good values
+		$filters = ee('CP/Filter')->add('Date');
+		$values = $filters->values();
+		$date_value = $values['filter_by_date'];
+		
+		if ($date_value)
 		{
-			$seconds = ee()->input->get('filter_by_date');
-			$days = $seconds/3600/24;
-			$datetime = new DateTime();
-			$datetime->setTimestamp(ee()->localize->now);
-			$datetime->sub(new DateInterval('P'.$days.'D'));
-			ee()->db->where('last_occurred >', $datetime->format('Y-m-d H:i:s'));
+			if (is_array($date_value))
+			{
+				$dt_from = new DateTime();
+				$dt_from->setTimestamp(($date_value[0] + 0));
+				$dt_to = new DateTime();
+				$dt_to->setTimestamp(($date_value[1] + 0));
+				ee()->db->where('last_occurred >=', $dt_from->format('Y-m-d H:i:s'));
+				ee()->db->where('last_occurred <', $dt_to->format('Y-m-d H:i:s'));
+			}
+			else
+			{
+				$days = $date_value/3600/24;
+				$datetime = new DateTime();
+				$datetime->setTimestamp(ee()->localize->now);
+				$datetime->sub(new DateInterval('P'.$days.'D'));
+				ee()->db->where('last_occurred >', $datetime->format('Y-m-d H:i:s'));
+			}
+		}
+		
+		
+		if (ee()->input->get('perpage') && !ee()->input->post('perpage'))
+		{
+			$this->_perpage = intval(ee()->input->get('perpage'));
+		}
+		// In case user input a custom value
+		// Note : we will pass this along as a GET var for pagination
+		if (ee()->input->post('perpage'))
+		{
+			$this->_perpage = intval(ee()->input->post('perpage'));
 		}
 	}
 
@@ -897,14 +946,7 @@ class hop_404_reporter_mcp
 			return $base_url_with_parameters;
 		}
 		
-		foreach ($parameters as $parameter)
-		{
-			if (ee()->input->get($parameter))
-			{
-				$base_url_with_parameters->setQueryStringVariable($parameter, ee()->input->get($parameter));
-			}
-		}
-		
+		// We prioritize POST data
 		if ($post_parameters != NULL && count($post_parameters) != 0)
 		{
 			foreach ($post_parameters as $parameter)
@@ -912,7 +954,18 @@ class hop_404_reporter_mcp
 				if (ee()->input->post($parameter))
 				{
 					$base_url_with_parameters->setQueryStringVariable($parameter, ee()->input->post($parameter));
+					
+					// Remove it from GET data
+					unset($parameters[$parameter]);
 				}
+			}
+		}
+		
+		foreach ($parameters as $parameter)
+		{
+			if (ee()->input->get($parameter))
+			{
+				$base_url_with_parameters->setQueryStringVariable($parameter, ee()->input->get($parameter));
 			}
 		}
 		

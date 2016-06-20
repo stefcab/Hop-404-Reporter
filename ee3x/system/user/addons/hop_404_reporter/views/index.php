@@ -8,10 +8,11 @@
 		<?= ee('CP/Alert')->getAllInlines() ?>
 		
 		<?=lang('404_url_list_description')?>
-
+		
+		<?=form_open($action_url, array('name' => 'target', 'id' => 'target'))?>
+		
 		<?= $filters ?>
 
-		<?=form_open($action_url, array('name' => 'target', 'id' => 'target'))?>
 		<?php
 
 		$this->embed('ee:_shared/table', $table);
