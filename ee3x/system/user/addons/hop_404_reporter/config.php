@@ -14,7 +14,7 @@
  */
 
 $config['name']='Hop 404 Reporter';
-$config['version']='2.0.0';
+$config['version']='2.0.1';
 $config['nsm_addon_updater']['versions_xml']='http://www.hopstudios.com/software/versions/hop_404_reporter';
 
 // Version constant
