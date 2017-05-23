@@ -2,6 +2,22 @@
 
 require_once PATH_THIRD.'hop_404_reporter/config.php';
 
+/**
+ * Compatibility fix for < ee 2.6
+ */
+if (!function_exists('ee'))
+{
+		function ee()
+		{
+			static $EE;
+			if (!$EE)
+			{
+				$EE = get_instance();
+			}
+			return $EE;
+		}
+}
+
 class Hop_404_reporter_helper
 {
 	private static $_settings;
