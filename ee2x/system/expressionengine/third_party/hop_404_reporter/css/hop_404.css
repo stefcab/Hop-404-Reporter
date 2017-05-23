@@ -1,6 +1,14 @@
-#target > table > tbody > tr > td:nth-child(2)
-{
+#target > table > tbody > tr > td:nth-child(2) {
 	max-width: 400px;
 	word-wrap: break-word;
 	word-break: break-all;
+}
+
+.action-buttons {
+	min-height: 22px;
+	margin: 15px 0;
+}
+
+.action-buttons .button a {
+	color: #fff;
 }

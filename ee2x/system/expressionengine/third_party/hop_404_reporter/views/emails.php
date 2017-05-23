@@ -3,7 +3,9 @@
 
 <?=lang('email_page_description')?>
 
-<span class="button" style="float:left;"><a title="<?=lang('email_add_notification') ?>" class="submit" href="<?=$add_email_notif_action?>"><?=lang('email_add_notification') ?></a></span>&nbsp;&nbsp;
+<div class="action-buttons">
+<span class="button"><a title="<?=lang('email_add_notification') ?>" class="submit" href="<?=$add_email_notif_action?>"><?=lang('email_add_notification') ?></a></span>&nbsp;&nbsp;
+</div>
 <?=form_open('C=addons_modules'.AMP.'M=show_module_cp'.AMP.'module=hop_404_reporter'.AMP.'method=display_emails', 'id="url_filter"')?>
 	<fieldset class="shun">
 		<legend><?=lang('filter_email_notifications')?></legend>
@@ -20,7 +22,9 @@
 echo $table_html;
 echo $pagination_html;
 ?>
+<div class="action-buttons">
 <span class="button" style="float:left;"><a title="<?=lang('email_add_notification') ?>" class="submit" href="<?=$add_email_notif_action?>"><?=lang('email_add_notification') ?></a></span>&nbsp;&nbsp;
+</div>
 <div class="tableSubmit">
 	<?=form_submit('submit', lang('submit'), 'class="submit"').NBS.NBS?>
 	<?=form_dropdown('action', $options, '', 'id="url_action"').NBS.NBS?>
