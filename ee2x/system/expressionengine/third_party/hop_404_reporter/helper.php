@@ -127,8 +127,7 @@ class Hop_404_reporter_helper
 		$email_sender = $hop_settings["email_address_sender"];
 		$email_subject = $hop_settings["email_notification_subject"];
 		ee()->load->library('email');
-		
-		
+
 		foreach ($notif_query->result_array() as $row)
 		{
 			$send_email = true;
@@ -175,14 +174,13 @@ class Hop_404_reporter_helper
 					if (is_array($parameters))
 					{
 						ee()->db->update('hop_404_reporter_emails', 
-										 array('parameter' => serialize($parameters)), 
-										 array('email_id' => $row["email_id"])
-										);
+							array('parameter' => serialize($parameters)), 
+							array('email_id' => $row["email_id"])
+						);
 					}
 				}
 			}
 			
-			
-		}
+		} // END foreach
 	}
 }
