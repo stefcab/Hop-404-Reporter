@@ -43,7 +43,10 @@ $modal_vars = array(
 		'bulk_action'	=> 'delete'
 	)
 );
-
+ee()->javascript->set_global(
+	'lang.remove_confirm',
+	'URL: <b>### URLs</b>'
+);
 $modal = $this->make('ee:_shared/modal_confirm_remove')->render($modal_vars);
 ee('CP/Modal')->addModal('delete', $modal);
 ?>
