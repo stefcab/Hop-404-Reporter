@@ -82,6 +82,7 @@ class hop_404_reporter_mcp
 		ee()->cp->load_package_css('hop_404');
 		ee()->view->header = $header;
 
+		ee()->load->library('table');
 		ee()->load->library('pagination');
 		ee()->load->library('javascript');
 		ee()->load->helper('form');
@@ -199,7 +200,7 @@ class hop_404_reporter_mcp
 	
 	/**
 	 * Setup filters for the index page (URLs list)
-	 * @return [type] [description]
+	 * @return void
 	 */
 	private function setup_url_list_filters($total_count)
 	{	
@@ -227,7 +228,7 @@ class hop_404_reporter_mcp
 	
 	/**
 	 * Will get parameters and add proper query parameters
-	 * @return [type] [description]
+	 * @return void
 	 */
 	private function urls_query_setup()
 	{
@@ -545,7 +546,7 @@ class hop_404_reporter_mcp
 	
 	/**
 	 * Create filter options for the email notifications list
-	 * @return [type] [description]
+	 * @return void
 	 */
 	private function setup_email_list_filters()
 	{	
@@ -567,7 +568,7 @@ class hop_404_reporter_mcp
 	
 	/**
 	 * Setup query parameters for email notifications list
-	 * @return [type] [description]
+	 * @return void
 	 */
 	private function email_notification_query_setup()
 	{
@@ -936,7 +937,7 @@ class hop_404_reporter_mcp
 	/**
 	 * This is building a base url including already existing parameters.
 	 * @param  array	$parameters	Array of names of parameters to keep in the url
-	 * @return [type]			 [description]
+	 * @return string			 [description]
 	 */
 	protected function _create_base_url_with_existing_parameters($parameters, $post_parameters = array())
 	{
