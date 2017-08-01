@@ -481,6 +481,9 @@ class hop_404_reporter_mcp
 		$table->setData($data);
 
 		$vars['table'] = $table->viewData($this->_create_base_url_with_existing_parameters(array('filter_by_interval', 'search'), array('search')));
+
+		$vars['search_keywords'] = $this->_keywords;
+		$vars['search_url'] = $this->_create_base_url_with_existing_parameters('sort_col', 'sort_dir', 'filter_by_ref_url', 'filter_by_date_range');
 		
 		//Setup pagination
 		ee()->db->select('count(*) AS count')
@@ -601,6 +604,7 @@ class hop_404_reporter_mcp
 		
 		if ($search_phrase)
 		{
+			$this->_keywords = $search_phrase;
 			$sql_filter_where = "(`email_address` LIKE '%".ee()->db->escape_like_str($search_phrase)."%' OR `url_to_match` LIKE '%".ee()->db->escape_like_str($search_phrase)."%' )";
 			ee()->db->where($sql_filter_where, NULL, TRUE);
 		}

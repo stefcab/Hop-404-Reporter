@@ -10,7 +10,14 @@
 		<?= ee('CP/Alert')->getAllInlines() ?>
 		
 		<?=lang('email_page_description')?>
-		
+
+		<?=form_open($search_url, array('name' => 'search', 'id' => 'search'))?>
+		<fieldset class="tbl-search right">
+			<input type="text" name="search" value="<?=$search_keywords?>" />
+			<input class="btn submit" value="<?=lang('search')?>" type="submit">
+		</fieldset>
+		<?=form_close()?>
+
 		<?= $filters ?>
 
 		<?=form_open($action_url, array('name' => 'target', 'id' => 'target'))?>
