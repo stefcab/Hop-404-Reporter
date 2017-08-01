@@ -6,11 +6,18 @@
 		<h1><?=lang('404_url_list_title')?></h1>
 
 		<?= ee('CP/Alert')->getAllInlines() ?>
-		
+
 		<?=lang('404_url_list_description')?>
-		
+
+		<?=form_open($search_url, array('name' => 'search', 'id' => 'search'))?>
+		<fieldset class="tbl-search right">
+			<input type="text" name="search" value="<?=$search_keywords?>" />
+			<input class="btn submit" value="<?=lang('search')?>" type="submit">
+		</fieldset>
+		<?=form_close()?>
+
 		<?=form_open($action_url, array('name' => 'target', 'id' => 'target'))?>
-		
+
 		<?= $filters ?>
 
 		<?php
@@ -37,7 +44,7 @@
 
 <?php
 $modal_vars = array(
-	'name'      => 'modal-confirm-delete',
+	'name'		=> 'modal-confirm-delete',
 	'form_url'	=> ee('CP/URL')->make('addons/settings/hop_404_reporter/modify_urls'),
 	'hidden'	=> array(
 		'bulk_action'	=> 'delete'

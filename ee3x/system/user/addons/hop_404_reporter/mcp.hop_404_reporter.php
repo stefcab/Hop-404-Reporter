@@ -167,6 +167,8 @@ class hop_404_reporter_mcp
 			array('sort_col', 'sort_dir', 'filter_by_ref_url', 'filter_by_date_range', 'search', 'filter_by_date', 'perpage'), 
 			array('search', 'filter_by_date', 'perpage')
 		);
+		$vars['search_keywords'] = $this->_keywords;
+		$vars['search_url'] = $this->_create_base_url_with_existing_parameters('sort_col', 'sort_dir', 'filter_by_ref_url', 'filter_by_date_range');
 		$vars['form_hidden'] = NULL;
 
 		$vars["filter_keywords"] = $this->_keywords;
@@ -255,9 +257,10 @@ class hop_404_reporter_mcp
 		{
 			$search_phrase = ee()->input->get('search');
 		}
-		
+
 		if ($search_phrase)
 		{
+			$this->_keywords = $search_phrase;
 			$sql_filter_where = "(`url` LIKE '%".ee()->db->escape_like_str($search_phrase)."%' OR `referrer_url` LIKE '%".ee()->db->escape_like_str($search_phrase)."%' )";
 			ee()->db->where($sql_filter_where, NULL, TRUE);
 		}
