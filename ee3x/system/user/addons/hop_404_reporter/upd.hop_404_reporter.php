@@ -23,11 +23,12 @@ class hop_404_reporter_upd
 		//Create module tables
 		//URLs table
 		$fields = array(
-			'url_id'		=> array('type' => 'INT', 'constraint' => '10', 'unsigned' => TRUE, 'auto_increment' => TRUE),
-			'url' 			=> array('type' => 'VARCHAR', 'constraint' => '255'),
-			'count'			=> array('type' => 'INT', 'constraint' => '8', 'default' => 0),
-			'referrer_url'	=> array('type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE),
-			'last_occurred'	=> array('type' => 'DATETIME')
+			'url_id'			=> array('type' => 'INT', 'constraint' => '10', 'unsigned' => TRUE, 'auto_increment' => TRUE),
+			'url' 				=> array('type' => 'VARCHAR', 'constraint' => '255'),
+			'count'				=> array('type' => 'INT', 'constraint' => '8', 'default' => 0),
+			'referrer_url'		=> array('type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE),
+			'last_occurred'		=> array('type' => 'DATETIME'),
+			'notification_to'	=> array('type' => 'MEDIUMTEXT')
 		);
 
 		ee()->dbforge->add_field($fields);
@@ -83,12 +84,20 @@ class hop_404_reporter_upd
 			return FALSE;
 		}
 
-		/*
-		if (version_compare($current, '2.0', '<'))
+
+		if (version_compare($current, '2.0.4', '<'))
 		{
-			// Do your update code here
+			// Add new field to hop_404_reporter_urls
+			ee()->load->dbforge();
+			ee()->dbforge->add_column('hop_404_reporter_urls', array(
+				'notification_to' => array(
+						'type' => 'MEDIUMTEXT'
+				)
+			));
+
+			// We should re-import all notifications sent and put them into that column
+			// Is this really that important though ?
 		}
-		*/
 		
 		return TRUE;
 	}
