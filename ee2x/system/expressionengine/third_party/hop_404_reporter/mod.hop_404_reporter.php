@@ -39,8 +39,8 @@ class Hop_404_reporter
 			$datetime = new DateTime();
 			$datetime->setTimestamp(ee()->localize->now);
 
-			Hop_404_reporter_helper::save_404_url('/'.$current_url, $referrer_url, $datetime);
-			
+			$url_update_result = Hop_404_reporter_helper::save_404_url('/'.$current_url, $referrer_url, $datetime);
+
 			if ($hop_settings["send_email_notifications"] == 'y')
 			{
 				// Set a custom error handler to not display errors on frontend
@@ -51,7 +51,8 @@ class Hop_404_reporter
 						ee()->logger->developer($error_string);
 					}
 				);
-				Hop_404_reporter_helper::send_email_notifications('/'.$current_url, $referrer_url, $datetime);
+				Hop_404_reporter_helper::send_email_notifications('/'.$current_url, $referrer_url, $datetime, $url_update_result['url_id']);
+
 				restore_error_handler();
 			}
 		}

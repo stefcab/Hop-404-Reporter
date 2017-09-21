@@ -450,6 +450,7 @@ class hop_404_reporter_mcp
 		$emails_to_modify = ee()->input->post('toggle');
 		
 		$count = 0;
+
 		foreach($emails_to_modify as $email_id)
 		{
 			if (ee()->input->post('action') == "delete")
@@ -459,11 +460,32 @@ class hop_404_reporter_mcp
 			}
 			else if (ee()->input->post('action') == "reset")
 			{
-				ee()->db->update('hop_404_reporter_emails', array('parameter' => ''), array('email_id' => $email_id));
+				//ee()->db->update('hop_404_reporter_emails', array('parameter' => ''), array('email_id' => $email_id));
+				// We have to remove the email from all URLs where a notification have been sent
+				$query = ee()->db->select(array('url_id', 'notification_to'))
+					->from('hop_404_reporter_urls')
+					->like('notification_to', 'i:'.$email_id.'')
+					->get();
+
+				$results_urls = $query->result_array();
+
+				foreach ($results_urls as $result_url)
+				{
+					$serialized_notification_to = $result_url['notification_to'];
+					$notification_to = unserialize($serialized_notification_to);
+					if ($notification_to && array_key_exists($email_id, $notification_to))
+					{
+						unset($notification_to[$email_id]);
+						ee()->db->update('hop_404_reporter_urls', 
+							array('notification_to' => serialize($notification_to)), 
+							array('url_id' => $result_url['url_id'])
+						);
+					}
+				}
 				$count++;
 			}
 		}
-		
+
 		if (ee()->input->post('action') == "delete")
 		{
 			ee()->session->set_flashdata('message_success', sprintf(lang('email_deleted_message'), $count));
